@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Calendar</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .company-section {
+            padding-left: 20px;
+        }
+        .time-section {
+            padding-left: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Salary Calendar</h1>
+    <form id="hours-form">
+        <label for="company">Select Company:</label>
+        <select id="company" name="company">
+            <!-- 公司選擇列表將由JavaScript動態填充 -->
+        </select>
+        <br>
+        <label for="start_datetime">Start Time:</label>
+        <input type="datetime-local" id="start_datetime" name="start_datetime" required>
+        <br>
+        <label for="end_datetime">End Time:</label>
+        <input type="datetime-local" id="end_datetime" name="end_datetime" required>
+        <br>
+        <button type="submit">Add</button>
+    </form>
+
+    <div id="results"></div>
+    <div id="calendar"></div>
+
+    <h2>Weekly Totals</h2>
+    <table id="weekly_totals">
+        <!-- Weekly totals will be loaded here -->
+    </table>
+
+    <!-- <h2>Monthly Totals</h2>
+    <table id="monthly_totals">
+        Monthly totals will be loaded here
+    </table> -->
+    <button onclick="exportData()">Export Data</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 從API獲取公司信息並填充公司選擇列表
+            fetch('/api/companies')
+                .then(response => response.json())
+                .then(data => {
+                    const companySelect = document.getElementById('company');
+                    Object.keys(data).forEach(company => {
+                        const option = document.createElement('option');
+                        option.value = company;
+                        option.textContent = company;
+                        companySelect.appendChild(option);
+                    });
+                });
+            loadWeeklyTotals();
+            // loadMonthlyTotals();
+        });
+
+        document.getElementById('hours-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            const formatTime = (datetime) => {
+                const dateObj = new Date(datetime);
+                const hours = String(dateObj.getHours()).padStart(2, '0');
+                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
+            };
+            // data.start_datetime = formatTime(data.start_datetime);
+            // data.end_datetime = formatTime(data.end_datetime);
+            // data.date = start_datetime.toISOString().split('T')[0];
+            const day_obj = new Date(data.start_datetime);
+            data.start_datetime = formatTime(data.start_datetime);
+            data.end_datetime = formatTime(data.end_datetime);
+
+            // 获取日期部分
+            // const day_obj = new Date(data.start_datetime);
+            data.date = day_obj.toISOString().split('T')[0]; // 获取日期部分，格式为 YYYY-MM-DD
+
+            console.log('Form Data:', data);
+
+            fetch('/calculate_hours', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log(result);
+                
+                // 清空之前的結果
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+
+                // 處理返回的結果並顯示
+                if (result.error) {
+                    resultsDiv.innerHTML = `<p>Error: ${result.error}</p>`;
+                } else {
+                    Object.keys(result).forEach(company => {
+                        const companyData = result[company];
+
+                        Object.keys(companyData).forEach(date => {
+                            const entries = companyData[date];
+                            
+                            entries.forEach(entry => {
+                                const entryHTML = `
+                                    <div class="entry">
+                                        <p><strong>Company:</strong> ${company}</p>
+                                        <p><strong>Date:</strong> ${date}</p>
+                                        <p><strong>Morning Hours:</strong> ${entry.morning_hours}h</p>
+                                        <p><strong>Evening Hours:</strong> ${entry.evening_hours}h</p>
+                                        <p><strong>Total Salary:</strong> $${entry.total_salary}</p>
+                                        <p><strong>Lunch Duration:</strong> ${entry.lunch_duration}h</p>
+                                        <p><strong>Dinner Duration:</strong> ${entry.dinner_duration}h</p>
+                                    </div>
+                                    <hr>
+                                `;
+                                resultsDiv.innerHTML = entryHTML;
+                            });
+                        });
+                    });
+                    loadWeeklyTotals();
+                    loadMonthlyTotals();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // 生成日曆
+        function generateCalendar(data) {
+            let calendarHTML = '<table><tr><th>Date</th><th>Details</th></tr>';
+            const allDates = new Set();
+
+            // 收集所有日期
+            for (let company in data) {
+                for (let date in data[company]) {
+                    allDates.add(date);
+                }
+            }
+
+            // 排序日期
+            const sortedDates = Array.from(allDates).sort();
+
+            // 為每個日期生成表格行
+            sortedDates.forEach(date => {
+                let dateHTML = `<tr><td>${date}</td><td>`;
+
+                // 收集該日期的所有公司
+                const companies = new Set();
+                for (let company in data) {
+                    if (data[company][date]) {
+                        companies.add(company);
+                    }
+                }
+                let totalDailySalary = 0;
+                companies.forEach(company => {
+                    
+                    dateHTML += `<div class="company-section">
+                                    <strong>${company}</strong>
+                                    <div>`;
+                    
+                    data[company][date].forEach(entry => {
+                        const totalHours = entry.morning_hours + entry.evening_hours;
+                        const entrySalary = entry.total_salary;
+                        
+                        totalDailySalary += entrySalary;
+                        dateHTML += `<div class="time-section">
+                                        ${entry.morning_hours}h Morning | ${entry.evening_hours}h Evening
+                                        <br>Total Salary: $${entrySalary}
+                                    </div>`;
+                    });
+
+                    dateHTML += `</div></div>`;
+                });
+                dateHTML += `<div class="total-salary-section">
+                    <strong>Total Salary for the Day: $${totalDailySalary}</strong>
+                </div>`;
+
+                dateHTML += `</td></tr>`;
+                calendarHTML += dateHTML;
+            });
+
+            calendarHTML += '</table>';
+            document.getElementById('calendar').innerHTML = calendarHTML;
+        }
+
+        function loadWeeklyTotals() {
+            // Fetch overall weekly totals
+            fetch('/api/overall_weekly_totals')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('weekly_totals');
+                    table.innerHTML = '<tr><th>Week</th><th>Total Salary</th><th>Total Hours</th></tr>';
+
+                    // Ensure weeks 1 to 5 are included
+                    for (let week = 1; week <= 5; week++) {
+                        // Fetch totals for the current week or default to 0 if no data
+                        const weekKey = `week_${week}`;
+                        const totals = data[weekKey] || { total_salary: 0, total_hours: 0 };
+
+                        const row = `<tr>
+                            <td>Week ${week}</td>
+                            <td>${totals.total_salary}</td>
+                            <td>${totals.total_hours}</td>
+                        </tr>`;
+                        table.innerHTML += row;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading weekly totals:', error);
+                });
+        }
+        // function loadMonthlyTotals() {
+        //     fetch('/api/monthly_totals')
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             const table = document.getElementById('monthly_totals');
+        //             table.innerHTML = '<tr><th>Company</th><th>Total Salary</th><th>Total Hours</th></tr>';
+
+        //             // If `data` contains the totals for all companies, loop through them
+        //             if (data && Object.keys(data).length > 0) {
+        //                 for (const [company, totals] of Object.entries(data)) {
+        //                     const row = `<tr>
+        //                         <td>${company}</td>
+        //                         <td>${totals.total_salary}</td>
+        //                         <td>${totals.total_hours}</td>
+        //                     </tr>`;
+        //                     table.innerHTML += row;
+        //                 }
+        //             } else {
+        //                 // Handle the case where there are no monthly totals
+        //                 const row = `<tr>
+        //                     <td colspan="3">No data available</td>
+        //                 </tr>`;
+        //                 table.innerHTML += row;
+        //             }
+        //         })
+        //         .catch(error => {
+        //             console.error('Error loading monthly totals:', error);
+        //         });
+        // }
+
+        // 導出數據
+        function exportData() {
+            window.location.href = '/export';
+        }
+
+        // 生成日曆，假設在JS變量'data'中有數據
+        const data = JSON.parse('{{ data|safe }}');
+        generateCalendar(data);
+    </script>
+</body>
+</html>

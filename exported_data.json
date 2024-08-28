@@ -1,0 +1,24 @@
+{
+    "CompanyA": {
+        "2024-08-01": [
+            {
+                "id": "719ecb3a-0d9a-477e-994d-263f82db0e9c",
+                "morning_hours": 0,
+                "evening_hours": 2.0,
+                "lunch_duration": 0,
+                "dinner_duration": 0,
+                "total_salary": 300.0
+            }
+        ],
+        "2024-08-02": [
+            {
+                "id": "17f269d6-508c-45e1-b804-c71906e6026e",
+                "morning_hours": 8.0,
+                "evening_hours": 0,
+                "lunch_duration": 1.0,
+                "dinner_duration": 1.0,
+                "total_salary": 800.0
+            }
+        ]
+    }
+}
