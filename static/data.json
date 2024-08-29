@@ -42,6 +42,60 @@
                 "lunch_duration": 0,
                 "dinner_duration": 0,
                 "total_salary": 200.0
+            },
+            {
+                "id": "68500c43-592f-4b9b-8de2-966485494469",
+                "morning_hours": 7.0,
+                "evening_hours": 0,
+                "lunch_duration": 1.0,
+                "dinner_duration": 0,
+                "total_salary": 140.0
+            },
+            {
+                "id": "39439592-14c6-4a19-9b55-e3e06c799238",
+                "morning_hours": 9.0,
+                "evening_hours": 0,
+                "lunch_duration": 1.0,
+                "dinner_duration": 0,
+                "total_salary": 180.0
+            },
+            {
+                "id": "7fce083d-0437-40b2-95e1-dee31b5ab3d9",
+                "morning_hours": 0.3333333333333333,
+                "evening_hours": 0,
+                "lunch_duration": 0,
+                "dinner_duration": 0,
+                "total_salary": 6.666666666666666
+            }
+        ],
+        "2024-08-30": [
+            {
+                "id": "085d2520-c83c-461b-b5a9-4a20c48ac774",
+                "morning_hours": 9.416666666666666,
+                "evening_hours": 0,
+                "lunch_duration": 1.0,
+                "dinner_duration": 0,
+                "total_salary": 188.33333333333331
+            }
+        ],
+        "2024-08-02": [
+            {
+                "id": "e8e8d4c0-d8f6-4a3b-8757-ab115eea94b4",
+                "morning_hours": 0.0,
+                "evening_hours": 0,
+                "lunch_duration": 0,
+                "dinner_duration": 0,
+                "total_salary": 0.0
+            }
+        ],
+        "2024-08-08": [
+            {
+                "id": "82e46a8f-e789-4e50-b218-4c658549962a",
+                "morning_hours": 0,
+                "evening_hours": 0,
+                "lunch_duration": 0,
+                "dinner_duration": 0,
+                "total_salary": 0
             }
         ]
     },

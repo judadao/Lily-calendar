@@ -4,103 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Salary Calendar</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .company-section {
-            padding-left: 20px;
-        }
-        .time-section {
-            padding-left: 40px;
-        }
-    </style>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
 </head>
 <body>
     <h1>Salary Calendar</h1>
-    <!-- <form id="hours-form">
-        <label for="company">Select Company:</label>
-        <select id="company" name="company">
-            公司選擇列表將由JavaScript動態填充
-        </select>
-        <br>
-        <label for="start_datetime">Start Time:</label>
-        <input type="datetime-local" id="start_datetime" name="start_datetime" required>
-        <br>
-        <label for="end_datetime">End Time:</label>
-        <input type="datetime-local" id="end_datetime" name="end_datetime" required>
-        <br>
-        <button type="submit">Add</button>
-    </form> -->
-    <form id="time-form">
-        <select id="company" name="company">
-            <!-- Company options will be populated by JavaScript -->
-        </select>
-        <div class="form-group">
-            <label for="date">Select Date:</label>
-            <input type="date" id="date" name="date" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="start_hour">Start Hour:</label>
-            <select id="start_hour" name="start_hour">
-                <!-- Hour options will be populated by JavaScript -->
-            </select>
-            <label for="start_minute">Start Minute:</label>
-            <select id="start_minute" name="start_minute">
-                <!-- Minute options will be populated by JavaScript -->
-            </select>
-        </div>
 
-        <div class="form-group">
-            <label for="end_hour">End Hour:</label>
-            <select id="end_hour" name="end_hour">
-                <!-- Hour options will be populated by JavaScript -->
-            </select>
-            <label for="end_minute">End Minute:</label>
-            <select id="end_minute" name="end_minute">
-                <!-- Minute options will be populated by JavaScript -->
-            </select>
-        </div>
+    <div class="container my-4">
+        <div class="row">
+            <!-- Left Form -->
+            <div class="col-md-6">
+                <form id="time-form" class="mb-4">
+                    <div class="mb-3">
+                        <label for="company" class="form-label">Select Company:</label>
+                        <select id="company" name="company" class="form-select">
+                            <!-- Company options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Select Date:</label>
+                        <input type="date" id="date" name="date" class="form-control" required>
+                    </div>
 
-        <button type="submit">Submit</button>
-    </form>
+                    <div class="mb-3">
+                        <label class="form-label">Start Time:</label>
+                        <div class="d-flex">
+                            <select id="start_hour" name="start_hour" class="form-select me-2">
+                                <!-- Hour options will be populated by JavaScript -->
+                            </select>
+                            <select id="start_minute" name="start_minute" class="form-select">
+                                <!-- Minute options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
 
-    <br>
-    <form id="deleteForm">
-        <div class="form-group">
-            <label for="deleteId">ID:</label>
-            <input type="text" id="deleteId" name="del_id" required>
+                    <div class="mb-3">
+                        <label class="form-label">End Time:</label>
+                        <div class="d-flex">
+                            <select id="end_hour" name="end_hour" class="form-select me-2">
+                                <!-- Hour options will be populated by JavaScript -->
+                            </select>
+                            <select id="end_minute" name="end_minute" class="form-select">
+                                <!-- Minute options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <div class="row">
+                    <!-- Delete Form -->
+                    <div class="col-md-12 mb-4">
+                        <form id="deleteForm">
+                            <div class="mb-3">
+                                <label for="deleteId" class="form-label">ID:</label>
+                                <input type="text" id="deleteId" name="del_id" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div class="col-md-12">
+                        <div id="results" class="border p-3">
+                            <!-- Results will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button type="submit">Submit</button>
-    </form>
-    <br>
+    </div>
+
 
     <div id="results"></div>
     <div id="calendar"></div>
 
-    <h2>Weekly Totals</h2>
-    <table id="weekly_totals">
+    <h2 class="my-4">Weekly Totals</h2>
+    <table id="weekly_totals" class="table table-bordered table-striped">
         <!-- Weekly totals will be loaded here -->
     </table>
-
-    <h2>Monthly Totals</h2>
-    <table id="monthly_totals">
+    
+    <h2 class="my-4">Monthly Totals</h2>
+    <table id="monthly_totals" class="table table-bordered table-striped">
         <!-- Monthly totals will be loaded here -->
     </table>
+
     <button onclick="saveData()">Save Data</button>
     <button onclick="exportData()">Export Data</button>
 
-    <script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             const hourSelects = document.querySelectorAll('select[name$="_hour"]');
             const minuteSelects = document.querySelectorAll('select[name$="_minute"]');
@@ -214,14 +215,7 @@
                 } else {
                     Object.keys(result).forEach(company => {
                         const companyData = result[company];
-                        // console.log(companyData);
-
-                        // Object.keys(companyData).forEach(date => {
-                        // const entries = companyData[date];
-                        
-                        // if (entries.length > 0) {
-                            // 取最新的一笔数据
-                            // const latestEntry = entries;
+   
                             const entryHTML = `
                                 <div class="entry">
                                     <p><strong>Company:</strong> ${company}</p>
@@ -261,66 +255,114 @@
 
         // 生成日曆
         function generateCalendar(data) {
-            let calendarHTML = '<table><tr><th>Date</th><th>Details</th></tr>';
-            const allDates = new Set();
+    let calendarHTML = `
+        <table class="table table-bordered table-striped">
+            <thead class="table-primary">
+                <tr>
+                    <th>Date</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>`;
 
-            // 收集所有日期
-            for (let company in data) {
-                for (let date in data[company]) {
-                    allDates.add(date);
-                }
+    const allDates = new Set();
+
+    // Collect all dates
+    for (let company in data) {
+        for (let date in data[company]) {
+            allDates.add(date);
+        }
+    }
+
+    // Sort dates
+    const sortedDates = Array.from(allDates).sort();
+
+    // Generate table rows for each date
+    sortedDates.forEach(date => {
+        const formattedDate = formatDate(date);
+        const weekday = getWeekday(date);
+        const isWeekend = weekday === 'Saturday' || weekday === 'Sunday';
+        const rowClass = isWeekend ? 'table-danger' : ''; // Apply a different class for weekends
+
+        let dateHTML = `<tr class="${rowClass}"><td>${formattedDate} (${weekday})</td><td>`;
+
+        // Collect all companies for the date
+        const companies = new Set();
+        for (let company in data) {
+            if (data[company][date]) {
+                companies.add(company);
             }
+        }
 
-            // 排序日期
-            const sortedDates = Array.from(allDates).sort();
+        let totalDailySalary = 0;
+        companies.forEach(company => {
+            dateHTML += `
+                <div class="accordion my-2" id="accordion-${date}-${company}">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-${date}-${company}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${date}-${company}" aria-expanded="false" aria-controls="collapse-${date}-${company}">
+                                <strong>${company}</strong>
+                            </button>
+                        </h2>
+                        <div id="collapse-${date}-${company}" class="accordion-collapse collapse" aria-labelledby="heading-${date}-${company}" data-bs-parent="#accordion-${date}-${company}">
+                            <div class="accordion-body">`;
 
-            // 為每個日期生成表格行
-            sortedDates.forEach(date => {
-                // 确保日期格式一致 (YYYY-MM-DD)
-                const formattedDate = formatDate(date);
+            data[company][date].forEach(entry => {
+                const totalHours = entry.morning_hours + entry.evening_hours;
+                const entrySalary = entry.total_salary;
 
-                let dateHTML = `<tr><td>${formattedDate}</td><td>`;
-
-                // 收集該日期的所有公司
-                const companies = new Set();
-                for (let company in data) {
-                    if (data[company][date]) {
-                        companies.add(company);
-                    }
-                }
-                let totalDailySalary = 0;
-                companies.forEach(company => {
-                    
-                    dateHTML += `<div class="company-section">
-                                    <strong>${company}</strong>
-                                    <div>`;
-                    
-                    data[company][date].forEach(entry => {
-                        const totalHours = entry.morning_hours + entry.evening_hours;
-                        const entrySalary = entry.total_salary;
-
-                        // console.log(entry);
-                        
-                        totalDailySalary += entrySalary;
-                        dateHTML += `<div class="time-section">
-                                        ${entry.morning_hours}h Morning | ${entry.evening_hours}h Evening | ID: ${entry.id}
-                                        <br>Total Salary: $${entrySalary}
-                                    </div>`;
-                    });
-
-                    dateHTML += `</div></div>`;
-                });
-                dateHTML += `<div class="total-salary-section">
-                    <strong>Total Salary for the Day: $${totalDailySalary}</strong>
-                </div>`;
-
-                dateHTML += `</td></tr>`;
-                calendarHTML += dateHTML;
+                totalDailySalary += entrySalary;
+                
+                // Enhanced formatting for Morning/Evening hours and ID
+                dateHTML += `
+                    <div class="d-flex flex-column border-bottom mb-2 pb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-primary">${entry.morning_hours}h Morning</span>
+                                <span class="badge bg-secondary">${entry.evening_hours}h Evening</span>
+                            </div>
+                            <div class="text-success ms-3">
+                                <strong>$${entrySalary}</strong>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-muted">
+                            <strong>ID:</strong> <code>${entry.id}</code>
+                        </div>
+                    </div>`;
             });
 
-            calendarHTML += '</table>';
-            document.getElementById('calendar').innerHTML = calendarHTML;
-        }
+            dateHTML += `</div></div></div></div>`;
+        });
+
+        dateHTML += `
+            <div class="alert alert-warning mt-2">
+                <strong>Total Salary for the Day: $${totalDailySalary}</strong>
+            </div>`;
+
+        dateHTML += `</td></tr>`;
+        calendarHTML += dateHTML;
+    });
+
+    calendarHTML += `</tbody></table>`;
+    document.getElementById('calendar').innerHTML = calendarHTML;
+}
+
+// Function to format the date as YYYY-MM-DD
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Function to get the weekday name
+function getWeekday(dateString) {
+    const date = new Date(dateString);
+    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return weekdays[date.getDay()];
+}
+
 
         function formatDate(date) {
             // 确保日期格式为 YYYY-MM-DD
@@ -332,51 +374,52 @@
         }
 
         function loadWeeklyTotals() {
-            // Fetch overall weekly totals
-            fetch('/api/overall_weekly_totals')
-                .then(response => response.json())
-                .then(data => {
-                    const table = document.getElementById('weekly_totals');
-                    table.innerHTML = '<tr><th>Week</th><th>Total Salary</th><th>Total Hours</th></tr>';
+    // Fetch overall weekly totals
+    fetch('/api/overall_weekly_totals')
+        .then(response => response.json())
+        .then(data => {
+            const table = document.getElementById('weekly_totals');
+            table.innerHTML = '<thead><tr><th>Week</th><th>Total Salary</th><th>Total Hours</th></tr></thead><tbody>';
 
-                    // Ensure weeks 1 to 5 are included
-                    for (let week = 1; week <= 5; week++) {
-                        // Fetch totals for the current week or default to 0 if no data
-                        const weekKey = `week_${week}`;
-                        const totals = data[weekKey] || { total_salary: 0, total_hours: 0 };
+            // Ensure weeks 1 to 5 are included
+            for (let week = 1; week <= 5; week++) {
+                // Fetch totals for the current week or default to 0 if no data
+                const weekKey = `week_${week}`;
+                const totals = data[weekKey] || { total_salary: 0, total_hours: 0 };
 
-                        const row = `<tr>
-                            <td>Week ${week}</td>
-                            <td>${totals.total_salary}</td>
-                            <td>${totals.total_hours}</td>
-                        </tr>`;
-                        table.innerHTML += row;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading weekly totals:', error);
-                });
-        }
+                const row = `<tr>
+                    <td>Week ${week}</td>
+                    <td>${totals.total_salary.toFixed(2)}</td>
+                    <td>${totals.total_hours.toFixed(2)}</td>
+                </tr>`;
+                table.innerHTML += row;
+            }
 
-        function loadMonthlyTotals() {
-            // Fetch monthly totals
-            fetch('/api/monthly_totals')
-                .then(response => response.json())
-                .then(data => {
-                    const table = document.getElementById('monthly_totals');
-                    table.innerHTML = '<tr><th>Total Salary</th><th>Total Hours</th></tr>';
-                    const row = `<tr>
-                        <td>${data.total_salary}</td>
-                        <td>${data.total_hours}</td>
-                    </tr>`;
-                    table.innerHTML += row;
-                    
+            table.innerHTML += '</tbody>';
+        })
+        .catch(error => {
+            console.error('Error loading weekly totals:', error);
+        });
+}
 
-                })
-                .catch(error => {
-                    console.error('Error loading monthly totals:', error);
-                });
-        }
+function loadMonthlyTotals() {
+    // Fetch monthly totals
+    fetch('/api/monthly_totals')
+        .then(response => response.json())
+        .then(data => {
+            const table = document.getElementById('monthly_totals');
+            table.innerHTML = '<thead><tr><th>Total Salary</th><th>Total Hours</th></tr></thead><tbody>';
+            const row = `<tr>
+                <td>${data.total_salary.toFixed(2)}</td>
+                <td>${data.total_hours.toFixed(2)}</td>
+            </tr>`;
+            table.innerHTML += row;
+            table.innerHTML += '</tbody>';
+        })
+        .catch(error => {
+            console.error('Error loading monthly totals:', error);
+        });
+}
         // 導出數據
         // function exportData() {
         //     window.location.href = '/export';
