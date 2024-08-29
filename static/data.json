@@ -38,6 +38,14 @@
                 "lunch_duration": 0,
                 "dinner_duration": 0,
                 "total_salary": 200.0
+            },
+            {
+                "id": "1655447c-e708-4c77-81e6-82a198c9d4e1",
+                "morning_hours": 7.0,
+                "evening_hours": 0,
+                "lunch_duration": 2.0,
+                "dinner_duration": 0,
+                "total_salary": 1330.0
             }
         ],
         "2024-08-31": [

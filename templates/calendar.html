@@ -7,7 +7,7 @@
     <title>Salary Calendar</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="styles.css" rel="stylesheet">
+    <link href="static/styles.css" rel="stylesheet">
 </head>
 
 <body>
@@ -83,8 +83,27 @@
     </div>
 
 
-    <div id="results"></div>
-    <div id="calendar"></div>
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-md-6 col-lg-4 mb-2">
+                <label for="yearSelect" class="form-label">Year</label>
+                <select id="yearSelect" class="form-select" required>
+                    <option value="" disabled selected>Please select a year</option>
+                </select>
+            </div>
+    
+            <div class="col-md-6 col-lg-4 mb-2">
+                <label for="monthSelect" class="form-label">Month</label>
+                <select id="monthSelect" class="form-select" required>
+                    <option value="" disabled selected>Please select a month</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Calendar Container -->
+        <div id="calendar"></div>
+    </div>
+    <div id="detailsPanel" class="mt-4"></div>
 
     <h2 class="my-4">Weekly Totals</h2>
     <table id="weekly_totals" class="table table-bordered table-striped">
@@ -107,6 +126,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const hourSelects = document.querySelectorAll('select[name$="_hour"]');
         const minuteSelects = document.querySelectorAll('select[name$="_minute"]');
+
 
         for (let i = 0; i < 24; i++) {
             const option = document.createElement('option');
@@ -135,15 +155,15 @@
                     companySelect.appendChild(option);
                 });
             });
-        fetch('/api/get_res')  // 替换为实际的 API 路径
-            .then(response => response.json())
-            .then(data => {
-                // console.log('Fetched Data for Calendar:', data);
-                generateCalendar(data); // 重新生成日历
-            })
-            .catch(error => {
-                console.error('Error fetching data for calendar:', error);
-            });
+        // fetch('/api/get_res')  // 替换为实际的 API 路径
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         // console.log('Fetched Data for Calendar:', data);
+        //         generateCalendar(data); // 重新生成日历
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching data for calendar:', error);
+        //     });
         loadWeeklyTotals();
         loadMonthlyTotals();
     });
@@ -239,141 +259,251 @@
 
                 }
 
-                fetch('/api/get_res')  // Replace with the actual API path
+                const year = document.getElementById('yearSelect').value;
+                const month = document.getElementById('monthSelect').value;
+            
+                fetch(`/api/get_res`) // Update this API call as needed
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Fetched Data for Calendar:', data);
-                        generateCalendar(data); // Update the calendar view
+                        console.log(`Fetched Data for ${year}-${month}:`, data);
+
+                        generateCalendar(data, year, month);
                     })
                     .catch(error => {
                         console.error('Error fetching data for calendar:', error);
                     });
-            })
+                })
 
             .catch(error => {
                 console.error('Error:', error);
             });
     });
 
-    // 生成日曆
-    function generateCalendar(data) {
-        let calendarHTML = `
-        <table class="table table-bordered table-striped">
-            <thead class="table-primary">
-                <tr>
-                    <th>Date</th>
-                    <th>Details</th>
-                </tr>
-            </thead>
-            <tbody>`;
+// Initialize year and month selectors
+function initYearMonthSelectors() {
+    const currentYear = new Date().getFullYear();
+    const yearSelect = document.getElementById('yearSelect');
+    const monthSelect = document.getElementById('monthSelect');
 
-        const allDates = new Set();
+    // Populate year options
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
 
-        // Collect all dates
-        for (let company in data) {
-            for (let date in data[company]) {
-                allDates.add(date);
+    // Populate month options
+    for (let month = 1; month <= 12; month++) {
+        const option = document.createElement('option');
+        option.value = month;
+        option.textContent = new Date(2024, month - 1).toLocaleString('default', { month: 'long' });
+        if (month === new Date().getMonth() + 1) option.selected = true;
+        monthSelect.appendChild(option);
+    }
+
+    generateCalendarForSelectedMonth();
+    // Generate calendar based on selected year and month
+    yearSelect.addEventListener('change', generateCalendarForSelectedMonth);
+    monthSelect.addEventListener('change', generateCalendarForSelectedMonth);
+}
+
+// Function to generate the calendar for the selected year and month
+function generateCalendarForSelectedMonth() {
+    const year = document.getElementById('yearSelect').value;
+    const month = document.getElementById('monthSelect').value;
+    
+    fetch(`/api/get_res`) // Update this API call as needed
+        .then(response => response.json())
+        .then(data => {
+            console.log(`Fetched Data for ${year}-${month}:`, data);
+
+            generateCalendar(data, year, month);
+        })
+        .catch(error => {
+            console.error('Error fetching data for calendar:', error);
+        });
+}
+
+// Function to generate the calendar
+function generateCalendar(data, year, month) {
+    const calendarHTML = createMonthlyCalendar(data, year, month);
+    // console.log(calendarHTML);
+    document.getElementById('calendar').innerHTML = calendarHTML;
+    attachDateClickHandlers(data);
+}
+
+// Function to create the monthly calendar grid
+function createMonthlyCalendar(data, year, month) {
+    const allDates = new Set();
+    
+    // Collect all dates
+    for (let company in data) {
+        for (let date in data[company]) {
+            allDates.add(date);
+        }
+    }
+
+    // Sort dates
+    const sortedDates = Array.from(allDates).sort();
+    
+    let calendarHTML = '<div class="table-responsive"><table class="table table-bordered table-calendar calendar-table">';
+    calendarHTML += `<thead class="table-primary"><tr><th colspan="7">${new Date(year, month - 1).toLocaleString('default', { month: 'long' })} ${year}</th></tr>`;
+    calendarHTML += '<tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead><tbody>';
+
+    const firstDayOfMonth = new Date(`${year}-${month}-01`).getDay();
+    const daysInMonth = new Date(year, month, 0).getDate();
+    let dayCounter = 1;
+
+    // Generate rows
+    for (let week = 0; week < 6; week++) {
+        calendarHTML += '<tr>';
+        for (let day = 0; day < 7; day++) {
+            if (week === 0 && day < firstDayOfMonth) {
+                calendarHTML += '<td></td>'; // Empty cells before the first day of the month
+            } else if (dayCounter > daysInMonth) {
+                calendarHTML += '<td></td>'; // Empty cells after the last day of the month
+            } else {
+                const currentDate = `${year}-${String(month).padStart(2, '0')}-${String(dayCounter).padStart(2, '0')}`;
+                const isWeekend = (day === 0 || day === 6); // Sunday or Saturday
+
+                // Check if this date has any data
+                let companyHTML = '';
+                let combinedTotalSalary = 0;
+                for (let company in data) {
+                    if (data[company][currentDate]) {
+                        const totalSalary = data[company][currentDate].reduce((sum, entry) => sum + entry.total_salary, 0);
+                        companyHTML += `${company}: $${totalSalary}<br>`;
+                        combinedTotalSalary += totalSalary; // Accumulate total salary
+                    }
+                }
+
+                const hasData = sortedDates.includes(currentDate);
+                const cellClass = isWeekend ? 'weekend' : (hasData ? 'has-data' : '');
+                const buttonHTML = hasData ? `<button class="btn btn-sm btn-outline-info" data-date="${currentDate}">${dayCounter}</button>` : dayCounter;
+
+                calendarHTML += `
+                    <td class="${cellClass}">
+                        <div class="d-flex flex-column align-items-center">
+                            ${buttonHTML}
+                            ${hasData ? `<div class="mt-2">${companyHTML}<div class="mt-2"><strong>Today Total Salary:</strong> $${combinedTotalSalary}</div></div>` : ''}
+                        </div>
+                    </td>`;
+                dayCounter++;
             }
         }
+        calendarHTML += '</tr>';
+    }
 
-        // Sort dates
-        const sortedDates = Array.from(allDates).sort();
+    calendarHTML += '</tbody></table></div>';
+    return calendarHTML;
+}
+// Function to attach click handlers to each date button
+function attachDateClickHandlers(data) {
+    const dateButtons = document.querySelectorAll('button[data-date]');
+    dateButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const selectedDate = this.getAttribute('data-date');
+            
+            showDetails(selectedDate, data);
+        });
+    });
+}
+// Function to show details when a date is clicked
+function showDetails(date, data) {
+    let detailsHTML = `<h4>Details for ${formatDate(date)} (${getWeekday(date)})</h4>`;
+    const companies = new Set();
+    let totalDailySalary = 0;
 
-        // Generate table rows for each date
-        sortedDates.forEach(date => {
-            const formattedDate = formatDate(date);
-            const weekday = getWeekday(date);
-            const isWeekend = weekday === 'Saturday' || weekday === 'Sunday';
-            const rowClass = isWeekend ? 'table-danger' : ''; // Apply a different class for weekends
+    // Collect all companies for the selected date
+    for (let company in data) {
+        if (data[company][date]) {
+            companies.add(company);
+        }
+    }
 
-            let dateHTML = `<tr class="${rowClass}"><td>${formattedDate} (${weekday})</td><td>`;
+    companies.forEach(company => {
+        detailsHTML += `
+        <div class="accordion my-2" id="accordion-${date}-${company}">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading-${date}-${company}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${date}-${company}" aria-expanded="false" aria-controls="collapse-${date}-${company}">
+                        <strong>${company}</strong>
+                    </button>
+                </h2>
+                <div id="collapse-${date}-${company}" class="accordion-collapse collapse" aria-labelledby="heading-${date}-${company}" data-bs-parent="#accordion-${date}-${company}">
+                    <div class="accordion-body">`;
 
-            // Collect all companies for the date
-            const companies = new Set();
-            for (let company in data) {
-                if (data[company][date]) {
-                    companies.add(company);
-                }
-            }
+        data[company][date].forEach(entry => {
+            const entrySalary = entry.total_salary;
+            totalDailySalary += entrySalary;
 
-            let totalDailySalary = 0;
-            companies.forEach(company => {
-                dateHTML += `
-                <div class="accordion my-2" id="accordion-${date}-${company}">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading-${date}-${company}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${date}-${company}" aria-expanded="false" aria-controls="collapse-${date}-${company}">
-                                <strong>${company}</strong>
-                            </button>
-                        </h2>
-                        <div id="collapse-${date}-${company}" class="accordion-collapse collapse" aria-labelledby="heading-${date}-${company}" data-bs-parent="#accordion-${date}-${company}">
-                            <div class="accordion-body">`;
-
-                data[company][date].forEach(entry => {
-                    const totalHours = entry.morning_hours + entry.evening_hours;
-                    const entrySalary = entry.total_salary;
-
-                    totalDailySalary += entrySalary;
-
-                    // Enhanced formatting for Morning/Evening hours and ID
-                    dateHTML += `
-                    <div class="d-flex flex-column border-bottom mb-2 pb-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="badge bg-primary">${entry.morning_hours}h Morning</span>
-                                <span class="badge bg-secondary">${entry.evening_hours}h Evening</span>
-                            </div>
-                            <div class="text-success ms-3">
-                                <strong>$${entrySalary}</strong>
-                            </div>
-                        </div>
-                        <div class="mt-2 text-muted">
-                            <strong>ID:</strong> <code>${entry.id}</code>
-                        </div>
-                    </div>`;
-                });
-
-                dateHTML += `</div></div></div></div>`;
-            });
-
-            dateHTML += `
-            <div class="alert alert-warning mt-2">
-                <strong>Total Salary for the Day: $${totalDailySalary}</strong>
+            detailsHTML += `
+            <div class="d-flex flex-column border-bottom mb-2 pb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-primary">${entry.morning_hours}h Morning</span>
+                        <span class="badge bg-secondary">${entry.evening_hours}h Evening</span>
+                    </div>
+                    <div class="text-success ms-3">
+                        <strong>$${entrySalary}</strong>
+                    </div>
+                </div>
+                <div class="mt-2 text-muted">
+                    <strong>ID:</strong> <code>${entry.id}</code>
+                </div>
             </div>`;
-
-            dateHTML += `</td></tr>`;
-            calendarHTML += dateHTML;
         });
 
-        calendarHTML += `</tbody></table>`;
-        document.getElementById('calendar').innerHTML = calendarHTML;
+        detailsHTML += `</div></div></div></div>`;
+    });
+
+    detailsHTML += `
+    <div class="alert alert-warning mt-2">
+        <strong>Total Salary for the Day: $${totalDailySalary}</strong>
+    </div>`;
+
+    document.getElementById('detailsPanel').innerHTML = detailsHTML;
+}
+
+// Function to get the tooltip content for a date
+function getTooltipContent(date, data) {
+    let tooltip = '';
+    let totalDailySalary = 0;
+    const companies = new Set();
+
+    for (let company in data) {
+        if (data[company][date]) {
+            companies.add(company);
+            data[company][date].forEach(entry => {
+                totalDailySalary += entry.total_salary;
+            });
+        }
     }
 
-    // Function to format the date as YYYY-MM-DD
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+    if (companies.size > 0) {
+        tooltip = `Companies: ${Array.from(companies).join(', ')}\nTotal Salary: $${totalDailySalary}`;
     }
 
-    // Function to get the weekday name
-    function getWeekday(dateString) {
-        const date = new Date(dateString);
-        const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        return weekdays[date.getDay()];
-    }
+    return tooltip;
+}
 
+// Function to format the date as YYYY-MM-DD
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
-    function formatDate(date) {
-        // 确保日期格式为 YYYY-MM-DD
-        const dateObj = new Date(date);
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // 月份从0开始
-        const day = String(dateObj.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
+// Function to get the weekday name
+function getWeekday(dateString) {
+    const date = new Date(dateString);
+    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return weekdays[date.getDay()];
+}
 
     function loadWeeklyTotals() {
         // Fetch overall weekly totals
@@ -478,6 +608,9 @@
         // 生成日曆，假設在JS變量'data'中有數據
         // const data = JSON.parse('{{ data|safe }}');
         // generateCalendar(data);
+    // Initialize selectors and generate calendar on page load
+initYearMonthSelectors();
+generateCalendarForSelectedMonth();
 </script>
 </body>
 
