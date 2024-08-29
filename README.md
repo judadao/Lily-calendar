@@ -68,3 +68,5 @@ You can change the company name, lunch and dinner start and end times, as well a
    - To calculate the salary, click "Save" to save the newly added items (data will be exported to static/data.json).
    - You can also choose to download the data.json file.
    - After clicking "Save," the system will automatically refresh and calculate the weekly and monthly salary.
+
+# THK
