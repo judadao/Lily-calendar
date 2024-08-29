@@ -3,7 +3,8 @@ body {
     font-family: Arial, sans-serif;
 }
 
-h1, h2 {
+h1,
+h2 {
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
@@ -71,8 +72,10 @@ button:hover {
 
 /* Custom styles for the badge */
 .badge {
-    font-size: 1rem; /* Adjust font size if needed */
-    padding: 0.5em 0.75em; /* Adjust padding for better visibility */
+    font-size: 1rem;
+    /* Adjust font size if needed */
+    padding: 0.5em 0.75em;
+    /* Adjust padding for better visibility */
 }
 
 .form-label {
@@ -92,25 +95,29 @@ button:hover {
 
 /* Custom styles for the table headers */
 .table thead th {
-    background-color: #007bff; /* Bootstrap Primary Color */
+    background-color: #007bff;
+    /* Bootstrap Primary Color */
     color: white;
     text-align: center;
 }
 
 /* Custom styles for table rows */
 .table tbody tr:nth-child(even) {
-    background-color: #f2f2f2; /* Light gray background for even rows */
+    background-color: #f2f2f2;
+    /* Light gray background for even rows */
 }
 
 /* Custom styles for table cells */
-.table td, .table th {
+.table td,
+.table th {
     text-align: center;
     vertical-align: middle;
 }
 
 /* Add spacing to the headings */
 h2 {
-    border-bottom: 2px solid #007bff; /* Underline with Bootstrap Primary Color */
+    border-bottom: 2px solid #007bff;
+    /* Underline with Bootstrap Primary Color */
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
