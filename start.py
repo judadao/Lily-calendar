@@ -20,6 +20,8 @@ def calculate_hours(date, start_time, end_time, lunch_start, lunch_end, dinner_s
     dinner_start = datetime.combine(date_obj, datetime.strptime(dinner_start, '%H:%M').time())
     dinner_end = datetime.combine(date_obj, datetime.strptime(dinner_end, '%H:%M').time())
 
+    print("start", start, "end", end)
+
     if end < start:
         return {
             'morning_hours': 0,
@@ -97,6 +99,8 @@ def get_hours():
     start_time = data.get('start_datetime')
     end_time = data.get('end_datetime')
 
+    print("start_time", start_time, "end_time", end_time)
+
     if not (company and date and start_time and end_time):
         return jsonify({'error': 'All required fields are not provided'}), 400
 
@@ -133,8 +137,9 @@ def get_hours():
         if date not in responses[company]:
             responses[company][date] = []
         responses[company][date].append(response)
+        print(dict(responses[company]))
 
-        return jsonify({company: dict(responses[company])})
+        return jsonify({company: response})
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 # @app.route('/calculate_hours', methods=['POST'])
@@ -198,20 +203,28 @@ def remove_data(id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
-@app.route('/export', methods=['GET'])
-def export_data():
+@app.route('/save', methods=['POST'])
+def save_data():
     try:
         filename = 'static/data.json'
         with open(filename, 'w') as f:
             json.dump(responses, f, indent=4)
+        return jsonify({'message': 'Data saved successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/export', methods=['GET'])
+def export_data():
+    try:
+        filename = 'static/data.json'
         return send_file(filename, as_attachment=True)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
 @app.route('/', methods=['GET'])
 def calendar():
-    data = load_data()
-    return render_template('calendar.html', data=json.dumps(data))
+    # data = load_data()
+    return render_template('calendar.html', data=json.dumps(responses))
 
 def calculate_totals():
     # Initialize weekly and monthly totals for both company-specific and overall totals
@@ -275,6 +288,10 @@ def get_overall_weekly_totals():
 def get_monthly_totals():
     _, _, monthly_totals = calculate_totals()
     return jsonify(monthly_totals)
+
+@app.route('/api/get_res', methods=['GET'])
+def get_res():
+    return jsonify(responses)
     
 if __name__ == '__main__':
     initialize_responses()

@@ -27,10 +27,10 @@
 </head>
 <body>
     <h1>Salary Calendar</h1>
-    <form id="hours-form">
+    <!-- <form id="hours-form">
         <label for="company">Select Company:</label>
         <select id="company" name="company">
-            <!-- 公司選擇列表將由JavaScript動態填充 -->
+            公司選擇列表將由JavaScript動態填充
         </select>
         <br>
         <label for="start_datetime">Start Time:</label>
@@ -40,7 +40,50 @@
         <input type="datetime-local" id="end_datetime" name="end_datetime" required>
         <br>
         <button type="submit">Add</button>
+    </form> -->
+    <form id="time-form">
+        <select id="company" name="company">
+            <!-- Company options will be populated by JavaScript -->
+        </select>
+        <div class="form-group">
+            <label for="date">Select Date:</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="start_hour">Start Hour:</label>
+            <select id="start_hour" name="start_hour">
+                <!-- Hour options will be populated by JavaScript -->
+            </select>
+            <label for="start_minute">Start Minute:</label>
+            <select id="start_minute" name="start_minute">
+                <!-- Minute options will be populated by JavaScript -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="end_hour">End Hour:</label>
+            <select id="end_hour" name="end_hour">
+                <!-- Hour options will be populated by JavaScript -->
+            </select>
+            <label for="end_minute">End Minute:</label>
+            <select id="end_minute" name="end_minute">
+                <!-- Minute options will be populated by JavaScript -->
+            </select>
+        </div>
+
+        <button type="submit">Submit</button>
     </form>
+
+    <br>
+    <form id="deleteForm">
+        <div class="form-group">
+            <label for="deleteId">ID:</label>
+            <input type="text" id="deleteId" name="del_id" required>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <br>
 
     <div id="results"></div>
     <div id="calendar"></div>
@@ -50,14 +93,33 @@
         <!-- Weekly totals will be loaded here -->
     </table>
 
-    <!-- <h2>Monthly Totals</h2>
+    <h2>Monthly Totals</h2>
     <table id="monthly_totals">
-        Monthly totals will be loaded here
-    </table> -->
+        <!-- Monthly totals will be loaded here -->
+    </table>
+    <button onclick="saveData()">Save Data</button>
     <button onclick="exportData()">Export Data</button>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const hourSelects = document.querySelectorAll('select[name$="_hour"]');
+            const minuteSelects = document.querySelectorAll('select[name$="_minute"]');
+
+            for (let i = 0; i < 24; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i.toString().padStart(2, '0');
+                hourSelects.forEach(select => select.appendChild(option.cloneNode(true)));
+            }
+
+            for (let i = 0; i < 60; i += 5) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i.toString().padStart(2, '0');
+                minuteSelects.forEach(select => select.appendChild(option.cloneNode(true)));
+            }
+            
+            
             // 從API獲取公司信息並填充公司選擇列表
             fetch('/api/companies')
                 .then(response => response.json())
@@ -70,35 +132,64 @@
                         companySelect.appendChild(option);
                     });
                 });
+            fetch('/api/get_res')  // 替换为实际的 API 路径
+                .then(response => response.json())
+                .then(data => {
+                    // console.log('Fetched Data for Calendar:', data);
+                    generateCalendar(data); // 重新生成日历
+                })
+                .catch(error => {
+                console.error('Error fetching data for calendar:', error);
+            });
             loadWeeklyTotals();
-            // loadMonthlyTotals();
+            loadMonthlyTotals();
+        });
+        document.getElementById('deleteForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const id = document.getElementById('deleteId').value;
+
+            fetch(`/remove/${id}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.message) {
+                    alert(data.message);
+                } else if (data.error) {
+                    alert(data.error);
+                }
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while trying to delete the data.');
+            });
         });
 
-        document.getElementById('hours-form').addEventListener('submit', function(event) {
+        document.getElementById('time-form').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            const formData = new FormData(this);
+            // const formData = new FormData(this);
             const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
 
-            const formatTime = (datetime) => {
-                const dateObj = new Date(datetime);
-                const hours = String(dateObj.getHours()).padStart(2, '0');
-                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-                return `${hours}:${minutes}`;
-            };
-            // data.start_datetime = formatTime(data.start_datetime);
-            // data.end_datetime = formatTime(data.end_datetime);
-            // data.date = start_datetime.toISOString().split('T')[0];
-            const day_obj = new Date(data.start_datetime);
-            data.start_datetime = formatTime(data.start_datetime);
-            data.end_datetime = formatTime(data.end_datetime);
+            // 从表单数据中提取日期和时间字段
+            const company = document.getElementById('company').value;
+            const date = document.getElementById('date').value;
+            const startHour = document.getElementById('start_hour').value;
+            const startMinute = document.getElementById('start_minute').value;
+            const endHour = document.getElementById('end_hour').value;
+            const endMinute = document.getElementById('end_minute').value;
 
-            // 获取日期部分
-            // const day_obj = new Date(data.start_datetime);
-            data.date = day_obj.toISOString().split('T')[0]; // 获取日期部分，格式为 YYYY-MM-DD
+            // 格式化开始时间和结束时间
+            const startTime = `${startHour.padStart(2, '0')}:${startMinute.padStart(2, '0')}`;
+            const endTime = `${endHour.padStart(2, '0')}:${endMinute.padStart(2, '0')}`;
+
+            // 组织数据
+            data.company = company;
+            data.date = date;
+            data.start_datetime = startTime;
+            data.end_datetime = endTime;
 
             console.log('Form Data:', data);
 
@@ -123,31 +214,46 @@
                 } else {
                     Object.keys(result).forEach(company => {
                         const companyData = result[company];
+                        // console.log(companyData);
 
-                        Object.keys(companyData).forEach(date => {
-                            const entries = companyData[date];
-                            
-                            entries.forEach(entry => {
-                                const entryHTML = `
-                                    <div class="entry">
-                                        <p><strong>Company:</strong> ${company}</p>
-                                        <p><strong>Date:</strong> ${date}</p>
-                                        <p><strong>Morning Hours:</strong> ${entry.morning_hours}h</p>
-                                        <p><strong>Evening Hours:</strong> ${entry.evening_hours}h</p>
-                                        <p><strong>Total Salary:</strong> $${entry.total_salary}</p>
-                                        <p><strong>Lunch Duration:</strong> ${entry.lunch_duration}h</p>
-                                        <p><strong>Dinner Duration:</strong> ${entry.dinner_duration}h</p>
-                                    </div>
-                                    <hr>
-                                `;
-                                resultsDiv.innerHTML = entryHTML;
-                            });
-                        });
+                        // Object.keys(companyData).forEach(date => {
+                        // const entries = companyData[date];
+                        
+                        // if (entries.length > 0) {
+                            // 取最新的一笔数据
+                            // const latestEntry = entries;
+                            const entryHTML = `
+                                <div class="entry">
+                                    <p><strong>Company:</strong> ${company}</p>
+                                    <p><strong>Date:</strong> ${date}</p>
+                                    <p><strong>Morning Hours:</strong> ${companyData.morning_hours}h</p>
+                                    <p><strong>Evening Hours:</strong> ${companyData.evening_hours}h</p>
+                                    <p><strong>Total Salary:</strong> $${companyData.total_salary}</p>
+                                    <p><strong>Lunch Duration:</strong> ${companyData.lunch_duration}h</p>
+                                    <p><strong>Dinner Duration:</strong> ${companyData.dinner_duration}h</p>
+                                </div>
+                                <hr>
+                            `;
+                            resultsDiv.innerHTML = entryHTML;  // 用新内容更新
+                        // }
+                    // });
                     });
-                    loadWeeklyTotals();
-                    loadMonthlyTotals();
+                    // loadWeeklyTotals();
+                    // loadMonthlyTotals();
+                    
                 }
+
+                fetch('/api/get_res')  // Replace with the actual API path
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Fetched Data for Calendar:', data);
+                    generateCalendar(data); // Update the calendar view
+                })
+                .catch(error => {
+                    console.error('Error fetching data for calendar:', error);
+                });
             })
+
             .catch(error => {
                 console.error('Error:', error);
             });
@@ -170,7 +276,10 @@
 
             // 為每個日期生成表格行
             sortedDates.forEach(date => {
-                let dateHTML = `<tr><td>${date}</td><td>`;
+                // 确保日期格式一致 (YYYY-MM-DD)
+                const formattedDate = formatDate(date);
+
+                let dateHTML = `<tr><td>${formattedDate}</td><td>`;
 
                 // 收集該日期的所有公司
                 const companies = new Set();
@@ -189,10 +298,12 @@
                     data[company][date].forEach(entry => {
                         const totalHours = entry.morning_hours + entry.evening_hours;
                         const entrySalary = entry.total_salary;
+
+                        // console.log(entry);
                         
                         totalDailySalary += entrySalary;
                         dateHTML += `<div class="time-section">
-                                        ${entry.morning_hours}h Morning | ${entry.evening_hours}h Evening
+                                        ${entry.morning_hours}h Morning | ${entry.evening_hours}h Evening | ID: ${entry.id}
                                         <br>Total Salary: $${entrySalary}
                                     </div>`;
                     });
@@ -209,6 +320,15 @@
 
             calendarHTML += '</table>';
             document.getElementById('calendar').innerHTML = calendarHTML;
+        }
+
+        function formatDate(date) {
+            // 确保日期格式为 YYYY-MM-DD
+            const dateObj = new Date(date);
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         function loadWeeklyTotals() {
@@ -237,44 +357,82 @@
                     console.error('Error loading weekly totals:', error);
                 });
         }
-        // function loadMonthlyTotals() {
-        //     fetch('/api/monthly_totals')
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             const table = document.getElementById('monthly_totals');
-        //             table.innerHTML = '<tr><th>Company</th><th>Total Salary</th><th>Total Hours</th></tr>';
 
-        //             // If `data` contains the totals for all companies, loop through them
-        //             if (data && Object.keys(data).length > 0) {
-        //                 for (const [company, totals] of Object.entries(data)) {
-        //                     const row = `<tr>
-        //                         <td>${company}</td>
-        //                         <td>${totals.total_salary}</td>
-        //                         <td>${totals.total_hours}</td>
-        //                     </tr>`;
-        //                     table.innerHTML += row;
-        //                 }
-        //             } else {
-        //                 // Handle the case where there are no monthly totals
-        //                 const row = `<tr>
-        //                     <td colspan="3">No data available</td>
-        //                 </tr>`;
-        //                 table.innerHTML += row;
-        //             }
-        //         })
-        //         .catch(error => {
-        //             console.error('Error loading monthly totals:', error);
-        //         });
+        function loadMonthlyTotals() {
+            // Fetch monthly totals
+            fetch('/api/monthly_totals')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('monthly_totals');
+                    table.innerHTML = '<tr><th>Total Salary</th><th>Total Hours</th></tr>';
+                    const row = `<tr>
+                        <td>${data.total_salary}</td>
+                        <td>${data.total_hours}</td>
+                    </tr>`;
+                    table.innerHTML += row;
+                    
+
+                })
+                .catch(error => {
+                    console.error('Error loading monthly totals:', error);
+                });
+        }
+        // 導出數據
+        // function exportData() {
+        //     window.location.href = '/export';
+        //     location.reload();
         // }
 
-        // 導出數據
-        function exportData() {
-            window.location.href = '/export';
+        function saveData() {
+        // Fetch request to save the data without downloading
+            fetch('/save', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);  // Show success message
+                    location.reload();
+                } else if (data.error) {
+                    alert(data.error);  // Show error message
+                }
+            })
+            .catch(error => {
+                console.error('Error saving data:', error);
+                alert('Failed to save data. Please try again.');
+            });
         }
 
+        function exportData() {
+            // Fetch the file from the server for download
+            fetch('/export')
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();  // Get the file data as a blob
+                    } else {
+                        return response.json().then(err => { throw new Error(err.error); });
+                    }
+                })
+            .then(blob => {
+                    // Create a link element to download the file
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.json';  // Set the default file name
+                    document.body.appendChild(a);
+                    a.click();  // Trigger the download
+                    a.remove();  // Remove the link after downloading
+                })
+            .catch(error => {
+                    console.error('Error exporting data:', error);
+                    alert('Failed to export data. Please try again.');
+            });
+        }
+    
+
         // 生成日曆，假設在JS變量'data'中有數據
-        const data = JSON.parse('{{ data|safe }}');
-        generateCalendar(data);
+        // const data = JSON.parse('{{ data|safe }}');
+        // generateCalendar(data);
     </script>
 </body>
 </html>
