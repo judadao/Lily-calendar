@@ -29,6 +29,17 @@ h2 {
     box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Soft shadow for depth */
     padding: 20px;
     margin-bottom: 30px;
+    max-width: 1200px;
+}
+
+.container_calend {
+    background-color: #ffffff; /* White background for forms and tables */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    padding: 20px;
+    margin-bottom: 30px;
+    max-width: 100%; /* Set the container to take full width */
+    width: 100%;
 }
 
 /* Row styling */
@@ -82,11 +93,29 @@ h2 {
     background-color: #c82333; /* Darker red for hover */
 }
 
-/* Calendar styling */
-#calendar {
-    margin-top: 20px;
+/* Calendar and Details Panel styling */
+.calendar-details-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
 }
 
+#calendar {
+    flex: 1 1 75%; /* Takes up 75% of the container's width */
+    max-width: 75%;
+    overflow-x: auto; /* Allows horizontal scrolling if needed */
+}
+
+#detailsPanel {
+    flex: 1 1 25%; /* Takes up 25% of the container's width */
+    max-width: 25%;
+    overflow-y: auto; /* Allows vertical scrolling if needed */
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+/* Table and Calendar styling */
 .table {
     width: 100%;
     border-collapse: collapse;
