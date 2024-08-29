@@ -55,16 +55,16 @@ You can change the company name, lunch and dinner start and end times, as well a
    - The calendar on the right will show the newly added item, allowing you to verify the information.
    ![確認訊息](images/submit_after.png)
    - You can delete specific items by entering their ID.
-    ![刪除](images/submit_dele.png)
+    ![刪除](images/submit_dele_1.png)
 
 2. **日曆操作**：
-    ![日曆](images/calendar.png)
+    ![日曆](images/calendar_1.png)
    - In the calendar, entries for each company can be folded or expanded.
    - View the salary for each item and the daily salary.
    - Check the working hours for morning and evening shifts.
 
 3. **計算週薪和月薪**：
-   ![計算區間](images/calulate.png)
+   ![計算區間](images/calulate_1.png)
    - To calculate the salary, click "Save" to save the newly added items (data will be exported to static/data.json).
    - You can also choose to download the data.json file.
    - After clicking "Save," the system will automatically refresh and calculate the weekly and monthly salary.
