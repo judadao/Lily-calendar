@@ -61,7 +61,7 @@
             <div class="col-md-6">
                 <div class="row">
                     <!-- Delete Form -->
-                    <div class="col-md-12 mb-4">
+                    <!-- <div class="col-md-12 mb-4">
                         <form id="deleteForm">
                             <div class="mb-3">
                                 <label for="deleteId" class="form-label">ID:</label>
@@ -69,10 +69,11 @@
                             </div>
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
-                    </div>
+                    </div> -->
 
                     <!-- Results Section -->
                     <div class="col-md-12">
+                        <label class="form-label">Details of Added Items</label>
                         <div id="results" class="border p-3">
                             <!-- Results will be dynamically inserted here -->
                         </div>
@@ -82,42 +83,97 @@
         </div>
     </div>
 
+    
+
+
     <div class="container_calend">
-        <div class="row mb-3">
-            <div class="col-md-6 col-lg-4 mb-2">
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-4 col-lg-4 mb-2">
                 <label for="yearSelect" class="form-label">Year</label>
                 <select id="yearSelect" class="form-select" required>
                     <option value="" disabled selected>Please select a year</option>
                 </select>
             </div>
-    
-            <div class="col-md-6 col-lg-4 mb-2">
+        
+            <div class="col-md-4 col-lg-4 mb-2">
                 <label for="monthSelect" class="form-label">Month</label>
                 <select id="monthSelect" class="form-select" required>
                     <option value="" disabled selected>Please select a month</option>
                 </select>
             </div>
+        
+            <div class="col-md-4 col-lg-4 mb-2 d-flex justify-content-end">
+                <button onclick="resetCalendar()" class="btn btn-danger">Reset calendar</button>
+            </div>
         </div>
-    
-        <!-- Calendar and Details Panel -->
-        <div class="calendar-details-container">
-            <div id="calendar"></div>
-            <div id="detailsPanel" class="mt-4"></div>
+        
+            <!-- Calendar and Details Panel -->
+            <div class="calendar-details-container">
+                <div id="calendar"></div>
+                <div id="detailsPanel" class="mt-4"></div>
+            </div>
         </div>
+
+        <!-- Weekly Totals -->
+        <h2 id="weekly_totals_title" class="my-4">Weekly Totals</h2>
+        <table id="weekly_totals" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Total Salary</th>
+                    <th>Total Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Weekly totals will be loaded here -->
+            </tbody>
+        </table>
+
+        <!-- Monthly Totals -->
+        <h2 id="monthly_totals_title" class="my-4">Monthly Totals</h2>
+        <table id="monthly_totals" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Total Salary</th>
+                    <th>Total Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Monthly totals will be loaded here -->
+            </tbody>
+        </table>
     </div>
 
-    <h2 class="my-4">Weekly Totals</h2>
-    <table id="weekly_totals" class="table table-bordered table-striped">
-        <!-- Weekly totals will be loaded here -->
-    </table>
-
-    <h2 class="my-4">Monthly Totals</h2>
-    <table id="monthly_totals" class="table table-bordered table-striped">
-        <!-- Monthly totals will be loaded here -->
-    </table>
-
-    <button onclick="saveData()">Save Data</button>
-    <button onclick="exportData()">Export Data</button>
+    <div class="container mb-3">
+        <div class="border-bottom pb-2 mb-2">
+            <h5>Data Management</h5>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4 mb-2 d-flex align-items-center">
+                <button onclick="saveData()" class="btn btn-primary w-100">Save Data</button>
+            </div>
+            <div class="col-md-4 mb-2 d-flex align-items-center">
+                <button onclick="exportData()" class="btn btn-primary w-100">Export Data</button>
+            </div>
+            <div class="col-md-4 mb-2 d-flex align-items-center">
+                <!-- File input container with file name display and import button -->
+                <div class="w-100 position-relative">
+                    <!-- Hidden file input -->
+                    <input type="file" id="importFile" class="form-control d-none">
+                    <!-- Button to trigger file selection -->
+                    <button class="btn btn-success w-100 mb-2" type="button" id="selectFileButton">
+                        Select File
+                    </button>
+                    <!-- Container for file name display and Import button, initially hidden -->
+                    <div id="fileImportContainer" class=" d-flex align-items-center w-100 mt-2">
+                        <span id="fileNameDisplay" class="text-muted me-2">No file chosen</span>
+                        <button id="importButton" class="btn btn-info">Import Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
@@ -127,6 +183,8 @@
     document.addEventListener('DOMContentLoaded', function () {
         const hourSelects = document.querySelectorAll('select[name$="_hour"]');
         const minuteSelects = document.querySelectorAll('select[name$="_minute"]');
+        const weeklyTotalsTitle = document.getElementById('weekly_totals_title');
+        const monthlyTotalsTitle = document.getElementById('monthly_totals_title');
 
 
         for (let i = 0; i < 24; i++) {
@@ -142,6 +200,8 @@
             option.textContent = i.toString().padStart(2, '0');
             minuteSelects.forEach(select => select.appendChild(option.cloneNode(true)));
         }
+
+
 
 
         // 從API獲取公司信息並填充公司選擇列表
@@ -165,31 +225,110 @@
         //     .catch(error => {
         //         console.error('Error fetching data for calendar:', error);
         //     });
-        loadWeeklyTotals();
-        loadMonthlyTotals();
-    });
-    document.getElementById('deleteForm').addEventListener('submit', function (event) {
-        event.preventDefault();
-        const id = document.getElementById('deleteId').value;
 
-        fetch(`/remove/${id}`, {
-            method: 'DELETE',
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data.message) {
-                    alert(data.message);
-                } else if (data.error) {
-                    alert(data.error);
+        
+        function updateTitles(year, month) {
+                const monthName = new Date(0, parseInt(month) - 1).toLocaleString('en', { month: 'long' });
+                weeklyTotalsTitle.textContent = `Weekly Totals for:  ${year} - ${monthName}( ${month} )`;
+                monthlyTotalsTitle.textContent = `Monthly Totals for:  ${year} - ${monthName}( ${month} ) `;
+        }
+        function fetchTotals() {
+                const year = yearSelect.value;
+                const month = monthSelect.value;
+
+                if (year && month) {
+                    if (year && month) {
+                        updateTitles(year, month);
+
+                        fetchWeeklyTotals(year, month);
+                        fetchMonthlyTotals(year, month);
+                    }
                 }
-                location.reload();
+            }
+
+            // Add event listeners
+            yearSelect.addEventListener('change', fetchTotals);
+            monthSelect.addEventListener('change', fetchTotals);
+    });
+
+
+    function fetchWeeklyTotals(year, month) {
+    const selectedMonth = `${year}-${month}`;
+
+    return fetch(`/api/overall_weekly_totals?month=${selectedMonth}`)
+        .then(response => response.json())
+        .then(data => {
+            const weeklyTableBody = document.querySelector('#weekly_totals tbody');
+            weeklyTableBody.innerHTML = '';
+            for (const [week, totals] of Object.entries(data)) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${week}</td>
+                    <td>${totals.total_salary}</td>
+                    <td>${totals.total_hours}</td>
+                `;
+                weeklyTableBody.appendChild(row);
+            }
+        })
+        .catch(error => console.error('Error fetching weekly totals:', error));
+}
+function resetCalendar() {
+    // Display confirmation dialog
+    if (confirm('Are you sure you want to reset the calendar? This action cannot be undone.')) {
+        // User confirmed, proceed with the reset
+        fetch('/reset_res')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (Object.keys(data).length === 0) {
+                    alert('Calendar has been reset successfully.');
+                    // Optionally, you can clear the details panel and calendar
+                    const year = new Date().getFullYear();
+                    const month = new Date().getMonth() + 1;
+                    document.getElementById('detailsPanel').innerHTML = '';
+                    generateCalendar({}, year, month);
+
+                    fetchWeeklyTotals(year, month);
+                    fetchMonthlyTotals(year, month);
+                } else {
+                    alert('Failed to reset the calendar. Please try again.');
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while trying to delete the data.');
+                alert('An error occurred while resetting the calendar. Please try again.');
             });
-    });
+    } else {
+        // User canceled, do nothing
+        alert('Calendar reset has been canceled.');
+    }
+}
+function fetchMonthlyTotals(year, month) {
+    const selectedMonth = `${year}-${month}`;
+
+    return fetch(`/api/monthly_totals?month=${selectedMonth}`)
+        .then(response => response.json())
+        .then(data => {
+            const monthlyTableBody = document.querySelector('#monthly_totals tbody');
+            monthlyTableBody.innerHTML = `
+                <tr>
+                    <td>${data.total_salary}</td>
+                    <td>${data.total_hours}</td>
+                </tr>
+            `;
+        })
+        .catch(error => console.error('Error fetching monthly totals:', error));
+}
+    // document.getElementById('deleteForm').addEventListener('submit', function (event) {
+    //     event.preventDefault();
+    //     const id = document.getElementById('deleteId').value;
+    //     removeEntry(id);
+
+    // });
 
     document.getElementById('time-form').addEventListener('submit', function (event) {
         event.preventDefault();
@@ -269,6 +408,8 @@
                         console.log(`Fetched Data for ${year}-${month}:`, data);
 
                         generateCalendar(data, year, month);
+                        fetchWeeklyTotals(year, month);
+                        fetchMonthlyTotals(year, month);
                     })
                     .catch(error => {
                         console.error('Error fetching data for calendar:', error);
@@ -296,12 +437,11 @@ function initYearMonthSelectors() {
     }
 
     // Populate month options
-    for (let month = 1; month <= 12; month++) {
-        const option = document.createElement('option');
-        option.value = month;
-        option.textContent = new Date(2024, month - 1).toLocaleString('default', { month: 'long' });
-        if (month === new Date().getMonth() + 1) option.selected = true;
-        monthSelect.appendChild(option);
+    for (let i = 1; i <= 12; i++) {
+                let option = document.createElement('option');
+                option.value = i.toString().padStart(2, '0');
+                option.text = new Date(0, i - 1).toLocaleString('en', { month: 'long' });
+                monthSelect.appendChild(option);
     }
 
     generateCalendarForSelectedMonth();
@@ -372,15 +512,17 @@ function createMonthlyCalendar(data, year, month) {
                 // Check if this date has any data
                 let companyHTML = '';
                 let combinedTotalSalary = 0;
+                let hasData = false;
+
                 for (let company in data) {
-                    if (data[company][currentDate]) {
+                    if (data[company][currentDate] && data[company][currentDate].length > 0) {
                         const totalSalary = data[company][currentDate].reduce((sum, entry) => sum + entry.total_salary, 0);
                         companyHTML += `${company}: $${totalSalary}<br>`;
                         combinedTotalSalary += totalSalary; // Accumulate total salary
+                        hasData = true; // Mark that there is data for this date
                     }
                 }
 
-                const hasData = sortedDates.includes(currentDate);
                 const cellClass = isWeekend ? 'weekend' : (hasData ? 'has-data' : '');
                 const buttonHTML = hasData ? `<button class="btn btn-sm btn-outline-info" data-date="${currentDate}">${dayCounter}</button>` : dayCounter;
 
@@ -425,41 +567,54 @@ function showDetails(date, data) {
     }
 
     companies.forEach(company => {
-        detailsHTML += `
-        <div class="accordion my-2" id="accordion-${date}-${company}">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="heading-${date}-${company}">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${date}-${company}" aria-expanded="false" aria-controls="collapse-${date}-${company}">
-                        <strong>${company}</strong>
-                    </button>
-                </h2>
-                <div id="collapse-${date}-${company}" class="accordion-collapse collapse" aria-labelledby="heading-${date}-${company}" data-bs-parent="#accordion-${date}-${company}">
-                    <div class="accordion-body">`;
-
-        data[company][date].forEach(entry => {
-            const entrySalary = entry.total_salary;
-            totalDailySalary += entrySalary;
-
+        let hasEntries = false;  // Check if there are entries for this company and date
+        
+        // Check if there are entries for this company on the selected date
+        if (data[company][date] && data[company][date].length > 0) {
+            hasEntries = true;
             detailsHTML += `
-            <div class="d-flex flex-column border-bottom mb-2 pb-2">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="badge bg-primary">${entry.morning_hours}h Morning</span>
-                        <span class="badge bg-secondary">${entry.evening_hours}h Evening</span>
-                    </div>
-                    <div class="text-success ms-3">
-                        <strong>$${entrySalary}</strong>
-                    </div>
-                </div>
-                <div class="mt-2 text-muted">
-                    <strong>ID:</strong> <code>${entry.id}</code>
-                    <button class="btn btn-danger btn-sm mt-2" onclick="removeEntry('${entry.id}')">Delete</button>
-                </div>
-                
-            </div>`;
-        });
+            <div class="accordion my-2" id="accordion-${date}-${company}">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading-${date}-${company}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${date}-${company}" aria-expanded="false" aria-controls="collapse-${date}-${company}">
+                            <strong>${company}</strong>
+                        </button>
+                    </h2>
+                    <div id="collapse-${date}-${company}" class="accordion-collapse collapse" aria-labelledby="heading-${date}-${company}" data-bs-parent="#accordion-${date}-${company}">
+                        <div class="accordion-body">`;
 
-        detailsHTML += `</div></div></div></div>`;
+            data[company][date].forEach(entry => {
+                const entrySalary = entry.total_salary;
+                totalDailySalary += entrySalary;
+
+                detailsHTML += `
+                <div id="entry-${entry.id}" class="d-flex flex-column border-bottom mb-2 pb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-primary">${entry.morning_hours}h Morning</span>
+                            <span class="badge bg-secondary">${entry.evening_hours}h Evening</span>
+                        </div>
+                        <div class="text-success ms-3">
+                            <strong>$${entrySalary}</strong>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-muted">
+                        <strong>ID:</strong> <code>${entry.id}</code>
+                        <button class="btn btn-danger btn-sm mt-2" onclick="removeEntry('${entry.id}')">Delete</button>
+                    </div>
+                </div>`;
+            });
+
+            detailsHTML += `</div></div></div></div>`;
+        }
+
+        // Remove accordion if no entries for this company on the selected date
+        if (!hasEntries) {
+            const companyAccordion = document.getElementById(`accordion-${date}-${company}`);
+            if (companyAccordion) {
+                companyAccordion.remove();
+            }
+        }
     });
 
     detailsHTML += `
@@ -470,6 +625,9 @@ function showDetails(date, data) {
     document.getElementById('detailsPanel').innerHTML = detailsHTML;
 }
 
+
+
+// 
 // JavaScript function to send DELETE request
 function removeEntry(id) {
     if (confirm('Are you sure you want to delete this entry?')) {
@@ -479,13 +637,39 @@ function removeEntry(id) {
         .then(response => response.json())
         .then(data => {
             if (data.message) {
+                
                 alert(data.message);
+
+                
                 // Refresh the details or update the UI as needed
-                location.reload(); // or you can update the UI dynamically
+                 // 获取当前选择的年份和月份
+                const year = document.getElementById('yearSelect').value;
+                const month = document.getElementById('monthSelect').value;
+
+                // 获取最新的数据并更新日历和总计表格
+                fetch(`/api/get_res`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const entryElement = document.getElementById(`entry-${id}`);
+                        if (entryElement) {
+                            entryElement.remove();
+                        }
+
+                        // const selectedDate = document.querySelector('button[data-date].active').getAttribute('data-date');
+                        // refreshDetailsPanel(selectedDate);
+
+                        generateCalendar(data, year, month);
+                        //refresh detail
+                        
+                        fetchWeeklyTotals(year, month);
+                        fetchMonthlyTotals(year, month);
+                    })
+                    .catch(error => console.error('Error fetching data for calendar:', error));
             } else if (data.error) {
                 alert(data.error);
             }
         })
+        
         .catch(error => console.error('Error:', error));
     }
 }
@@ -528,78 +712,28 @@ function getWeekday(dateString) {
     return weekdays[date.getDay()];
 }
 
-    function loadWeeklyTotals() {
-        // Fetch overall weekly totals
-        fetch('/api/overall_weekly_totals')
-            .then(response => response.json())
-            .then(data => {
-                const table = document.getElementById('weekly_totals');
-                table.innerHTML = '<thead><tr><th>Week</th><th>Total Salary</th><th>Total Hours</th></tr></thead><tbody>';
-
-                // Ensure weeks 1 to 5 are included
-                for (let week = 1; week <= 5; week++) {
-                    // Fetch totals for the current week or default to 0 if no data
-                    const weekKey = `week_${week}`;
-                    const totals = data[weekKey] || { total_salary: 0, total_hours: 0 };
-
-                    const row = `<tr>
-                    <td>Week ${week}</td>
-                    <td>${totals.total_salary.toFixed(2)}</td>
-                    <td>${totals.total_hours.toFixed(2)}</td>
-                </tr>`;
-                    table.innerHTML += row;
-                }
-
-                table.innerHTML += '</tbody>';
-            })
-            .catch(error => {
-                console.error('Error loading weekly totals:', error);
-            });
-    }
-
-    function loadMonthlyTotals() {
-        // Fetch monthly totals
-        fetch('/api/monthly_totals')
-            .then(response => response.json())
-            .then(data => {
-                const table = document.getElementById('monthly_totals');
-                table.innerHTML = '<thead><tr><th>Total Salary</th><th>Total Hours</th></tr></thead><tbody>';
-                const row = `<tr>
-                <td>${data.total_salary.toFixed(2)}</td>
-                <td>${data.total_hours.toFixed(2)}</td>
-            </tr>`;
-                table.innerHTML += row;
-                table.innerHTML += '</tbody>';
-            })
-            .catch(error => {
-                console.error('Error loading monthly totals:', error);
-            });
-    }
-    // 導出數據
-    // function exportData() {
-    //     window.location.href = '/export';
-    //     location.reload();
-    // }
-
-    function saveData() {
-        // Fetch request to save the data without downloading
-        fetch('/save', {
-            method: 'POST'
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert(data.message);  // Show success message
-                    location.reload();
-                } else if (data.error) {
-                    alert(data.error);  // Show error message
-                }
-            })
-            .catch(error => {
-                console.error('Error saving data:', error);
-                alert('Failed to save data. Please try again.');
-            });
-    }
+function saveData() {
+    fetch('/save', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);  // Show success message
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            generateCalendar(data, year, month);
+            fetchWeeklyTotals(year, month);
+            fetchMonthlyTotals(year, month);
+        } else if (data.error) {
+            alert(data.error);  // Show error message
+        }
+    })
+    .catch(error => {
+        console.error('Error saving data:', error);
+        alert('Failed to save data. Please try again.');
+    });
+}
 
     function exportData() {
         // Fetch the file from the server for download
@@ -626,8 +760,74 @@ function getWeekday(dateString) {
                 alert('Failed to export data. Please try again.');
             });
     }
+    document.getElementById('selectFileButton').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default button behavior
+    document.getElementById('importFile').click(); // Trigger file input click
+});
 
+document.getElementById('importFile').addEventListener('change', function() {
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const importButton = document.getElementById('importButton');
+    const fileImportContainer = document.getElementById('fileImportContainer');
+    const file = this.files[0];
 
+    if (file) {
+        fileNameDisplay.textContent = `${file.name}`;
+        // importButton.classList.remove('d-none'); // Show Import button
+        // fileImportContainer.classList.remove('d-none'); // Show container
+    } else {
+        fileNameDisplay.textContent = 'No file chosen'; // Show default message
+        // importButton.classList.add('d-none'); // Hide Import button
+        // fileImportContainer.classList.add('d-none'); // Hide container
+    }
+});
+
+// Trigger the import function when the Import button is clicked
+document.getElementById('importButton').addEventListener('click', function() {
+    importData();
+});
+
+function importData() {
+    const fileInput = document.getElementById('importFile');
+    const file = fileInput.files[0]; // Get the first selected file
+
+    if (!file) {
+        alert('Please select a file to import.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/import', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.message) {
+            alert(data.message); // Show success message
+
+            // Optionally, re-generate the calendar or refresh the page
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            generateCalendar(data, year, month);
+            fetchWeeklyTotals(year, month);
+            fetchMonthlyTotals(year, month);
+        } else if (data.error) {
+            alert(data.error); // Show error message
+        }
+    })
+    .catch(error => {
+        console.error('Error importing data:', error);
+        alert('Failed to import data. Please try again.');
+    });
+}
         // 生成日曆，假設在JS變量'data'中有數據
         // const data = JSON.parse('{{ data|safe }}');
         // generateCalendar(data);

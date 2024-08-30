@@ -103,7 +103,10 @@ h2 {
 #calendar {
     flex: 1 1 75%; /* Takes up 75% of the container's width */
     max-width: 75%;
-    overflow-x: auto; /* Allows horizontal scrolling if needed */
+    border: 1px solid #ddd;
+    padding: 15px;
+    background-color: #fff;
+    overflow: auto; /* Allows scrolling if content overflows */
 }
 
 #detailsPanel {
@@ -183,13 +186,15 @@ h2 {
 }
 
 /* Results and Details Panel styling */
-#results,
 #detailsPanel {
+    flex: 1 1 25%; /* Takes up 25% of the container's width */
+    max-width: 25%;
     border: 1px solid #ddd;
-    border-radius: 4px;
     padding: 15px;
-    background-color: #ffffff; /* White background for panels */
-    margin-top: 20px;
+    background-color: #f9f9f9;
+    overflow-y: auto; /* Allows vertical scrolling if needed */
+    /* Ensure same height as #calendar */
+    height: auto; /* Adjust this value if you want a fixed height */
 }
 
 /* Button group styling */
@@ -212,4 +217,44 @@ button + button {
 .table td .content .salary {
     font-size: 0.9rem;
     color: #666;
+}
+
+
+/* Ensure the file input is visible only on hover */
+.position-relative:hover #importFile {
+    display: block;
+}
+
+/* Optional styling for better file input appearance */
+#importFile {
+    opacity: 0; /* Keep it invisible */
+    width: 100%; /* Cover button area */
+    height: 100%; /* Cover button area */
+    cursor: pointer; /* Show pointer cursor when hovering */
+    position: absolute; /* Ensure it overlaps the button */
+    top: 0; /* Align with the top */
+    left: 0; /* Align with the left */
+    z-index: 1; /* Place it above other content */
+}
+
+
+#fileNameDisplay {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: #495057;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    display: flex;
+    align-items: center;
+}
+
+#fileNameDisplay::before {
+    content: '\f15b'; /* Unicode for a file icon */
+    font-family: 'Font Awesome 5 Free'; /* Assuming Font Awesome is included */
+    font-weight: 900;
+    margin-right: 8px;
+    color: #007bff;
 }

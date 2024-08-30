@@ -80,7 +80,7 @@ def calculate_salary(morning_hours, evening_hours, morning_rate, evening_rate):
 def load_data():
     # Load data from JSON file
     try:
-        with open('static/data.json', 'r') as f:
+        with open('static/data.json', 'r',encoding='utf-8') as f:
             data = json.load(f)
         return data
     except FileNotFoundError:
@@ -97,7 +97,7 @@ def initialize_responses():
 
 
 # 假設 company_info.json 存儲公司資訊
-with open('static/company_info.json', 'r') as f:
+with open('static/company_info.json', 'r', encoding='utf-8') as f:
     company_info = json.load(f)
 
 
@@ -204,6 +204,12 @@ def get_hours():
 def get_data():
     return jsonify(responses)
 
+@app.route('/reset_res', methods=['GET'])
+def reset_res_data():
+    # Perform any necessary data reset operations here
+    global responses
+    responses = {}  # Return an empty object to indicate success
+    return jsonify(responses)
 
 @app.route('/remove/<id>', methods=['DELETE'])
 def remove_data(id):
@@ -229,7 +235,7 @@ def remove_data(id):
 def save_data():
     try:
         filename = 'static/data.json'
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             json.dump(responses, f, indent=4)
         return jsonify({'message': 'Data saved successfully'})
     except Exception as e:
@@ -243,6 +249,22 @@ def export_data():
         return send_file(filename, as_attachment=True)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/import', methods=['POST'])
+def import_data():
+    global responses
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file:
+        try:
+            data = json.load(file)
+            responses = data  # Update the global responses with imported data
+            return jsonify({'message': 'Data imported successfully'})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
 
 @app.route('/', methods=['GET'])
@@ -251,40 +273,39 @@ def calendar():
     return render_template('calendar.html', data=json.dumps(responses))
 
 
-def calculate_totals():
+def calculate_totals(selected_month):
     # Initialize weekly and monthly totals for both company-specific and overall totals
-    weekly_totals = {f'week_{i}': {'total_salary': 0,
-                                   'total_hours': 0} for i in range(1, 6)}
+    weekly_totals = {f'{i}': {'total_salary': 0, 'total_hours': 0} for i in range(1, 6)}
     company_weekly_totals = {}
     monthly_totals = {'total_salary': 0, 'total_hours': 0}
 
-    data = load_data()
+    data = responses
 
     for company, records in data.items():
         # Initialize weekly totals for the company
-        company_weekly_totals[company] = {f'week_{i}': {
-            'total_salary': 0, 'total_hours': 0} for i in range(1, 6)}
+        company_weekly_totals[company] = {f'{i}': {'total_salary': 0, 'total_hours': 0} for i in range(1, 6)}
         company_monthly_salary = 0
         company_monthly_hours = 0
 
         for date, entries in records.items():
-            daily_salary = sum(entry['total_salary'] for entry in entries)
-            daily_hours = sum(entry['morning_hours'] +
-                              entry['evening_hours'] for entry in entries)
-
-            # Calculate monthly totals for the company
-            company_monthly_salary += daily_salary
-            company_monthly_hours += daily_hours
-
-            # Calculate weekly totals for the company
             date_obj = datetime.strptime(date, '%Y-%m-%d')
-            week_number = (date_obj.day - 1) // 7 + \
-                1  # Simplified week calculation
-            week_key = f'week_{week_number}'
+            
+            # Check if the date belongs to the selected month
+            if date_obj.strftime('%Y-%m') == selected_month:
+                daily_salary = sum(entry['total_salary'] for entry in entries)
+                daily_hours = sum(entry['morning_hours'] + entry['evening_hours'] for entry in entries)
 
-            if week_key in company_weekly_totals[company]:
-                company_weekly_totals[company][week_key]['total_salary'] += daily_salary
-                company_weekly_totals[company][week_key]['total_hours'] += daily_hours
+                # Calculate monthly totals for the company
+                company_monthly_salary += daily_salary
+                company_monthly_hours += daily_hours
+
+                # Calculate weekly totals for the company
+                week_number = (date_obj.day - 1) // 7 + 1  # Simplified week calculation
+                week_key = f'{week_number}'
+
+                if week_key in company_weekly_totals[company]:
+                    company_weekly_totals[company][week_key]['total_salary'] += daily_salary
+                    company_weekly_totals[company][week_key]['total_hours'] += daily_hours
 
         # Update the overall weekly totals
         for week_key, totals in company_weekly_totals[company].items():
@@ -306,19 +327,22 @@ def calculate_totals():
 
 @app.route('/api/company_weekly_totals', methods=['GET'])
 def get_company_weekly_totals():
-    company_weekly_totals, _, _ = calculate_totals()
+    selected_month = request.args.get('month')  # 從查詢參數獲取月份
+    company_weekly_totals, _, _ = calculate_totals(selected_month)
     return jsonify(company_weekly_totals)
 
 
 @app.route('/api/overall_weekly_totals', methods=['GET'])
 def get_overall_weekly_totals():
-    _, weekly_totals, _ = calculate_totals()
+    selected_month = request.args.get('month')  # 從查詢參數獲取月份
+    _, weekly_totals, _ = calculate_totals(selected_month)
     return jsonify(weekly_totals)
 
 
 @app.route('/api/monthly_totals', methods=['GET'])
 def get_monthly_totals():
-    _, _, monthly_totals = calculate_totals()
+    selected_month = request.args.get('month')  # 從查詢參數獲取月份
+    _, _, monthly_totals = calculate_totals(selected_month)
     return jsonify(monthly_totals)
 
 

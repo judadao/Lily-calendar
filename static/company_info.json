@@ -1,11 +1,51 @@
 {
-    "CompanyA": {
-        "lunch_start": "12:00",
-        "lunch_end": "13:00",
+    "原力_平日_1234": {
+        "lunch_start": "12:30",
+        "lunch_end": "13:30",
+        "dinner_start": "17:30",
+        "dinner_end": "17:30",
+        "morning_rate": 330,
+        "evening_rate": 400
+    },
+    "原力_平日_5": {
+        "lunch_start": "12:30",
+        "lunch_end": "13:30",
         "dinner_start": "18:00",
-        "dinner_end": "19:00",
-        "morning_rate": 20,
-        "evening_rate": 30
+        "dinner_end": "18:00",
+        "morning_rate": 330,
+        "evening_rate": 330
+    },
+    "原力_禮拜6": {
+        "lunch_start": "12:30",
+        "lunch_end": "13:30",
+        "dinner_start": "13:30",
+        "dinner_end": "13:30",
+        "morning_rate": 380,
+        "evening_rate": 330
+    },
+    "維力_only_a": {
+        "lunch_start": "12:00",
+        "lunch_end": "12:00",
+        "dinner_start": "13:30",
+        "dinner_end": "13:30",
+        "morning_rate": 330,
+        "evening_rate": 330
+    },
+    "維力_多節": {
+        "lunch_start": "12:00",
+        "lunch_end": "12:00",
+        "dinner_start": "17:30",
+        "dinner_end": "17:30",
+        "morning_rate": 330,
+        "evening_rate": 380
+    },
+    "和謙": {
+        "lunch_start": "12:00",
+        "lunch_end": "12:00",
+        "dinner_start": "17:30",
+        "dinner_end": "17:30",
+        "morning_rate": 360,
+        "evening_rate": 360
     },
     "CompanyB": {
         "lunch_start": "15:00",
