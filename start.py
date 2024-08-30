@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file,  render_template
+from flask import Flask, request, jsonify, send_file,  render_template, redirect, url_for, abort
 from datetime import datetime, timedelta
 from collections import OrderedDict
 from collections import defaultdict
@@ -10,25 +10,34 @@ app = Flask(__name__)
 
 
 responses = defaultdict(lambda: defaultdict(list))
+company_info_path = 'static/company_info.json'
+company_info ={}
+# 假設 company_info.json 存儲公司資訊
+def load_company_info():
+    if os.path.exists(company_info_path):
+        with open(company_info_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    else:
+        return {}
+
+def save_company_info(company_info):
+    with open(company_info_path, 'w', encoding='utf-8') as f:
+        json.dump(company_info, f, ensure_ascii=False, indent=4)
 
 
-def calculate_hours(date, start_time, end_time, lunch_start, lunch_end, dinner_start, dinner_end):
+def calculate_hours(date, start_time, end_time, lunch_start=None, lunch_end=None, dinner_start=None, dinner_end=None, evening_shift_start=None, has_evening_shift=False, deduct_lunch_time=False, deduct_dinner_time=False):
+    # Convert date and times to datetime objects
     date_obj = datetime.strptime(date, '%Y-%m-%d')
-    start = datetime.combine(
-        date_obj, datetime.strptime(start_time, '%H:%M').time())
-    end = datetime.combine(
-        date_obj, datetime.strptime(end_time, '%H:%M').time())
-    lunch_start = datetime.combine(
-        date_obj, datetime.strptime(lunch_start, '%H:%M').time())
-    lunch_end = datetime.combine(
-        date_obj, datetime.strptime(lunch_end, '%H:%M').time())
-    dinner_start = datetime.combine(
-        date_obj, datetime.strptime(dinner_start, '%H:%M').time())
-    dinner_end = datetime.combine(
-        date_obj, datetime.strptime(dinner_end, '%H:%M').time())
+    start = datetime.combine(date_obj, datetime.strptime(start_time, '%H:%M').time())
+    end = datetime.combine(date_obj, datetime.strptime(end_time, '%H:%M').time())
+    
+    # Initialize durations
+    morning_hours = 0
+    evening_hours = 0
+    lunch_duration = 0
+    dinner_duration = 0
 
-    print("start", start, "end", end)
-
+    # Check for invalid cases
     if end < start:
         return {
             'morning_hours': 0,
@@ -37,31 +46,41 @@ def calculate_hours(date, start_time, end_time, lunch_start, lunch_end, dinner_s
             'dinner_duration': 0
         }
 
-    morning_hours = 0
-    evening_hours = 0
-    lunch_duration = 0
-    dinner_duration = 0
+    # Handle optional lunch times
+    if lunch_start and lunch_end and deduct_lunch_time:
+        lunch_start = datetime.combine(date_obj, datetime.strptime(lunch_start, '%H:%M').time())
+        lunch_end = datetime.combine(date_obj, datetime.strptime(lunch_end, '%H:%M').time())
+        if lunch_start < end and lunch_end > start:
+            lunch_start_within_work = max(lunch_start, start)
+            lunch_end_within_work = min(lunch_end, end)
+            if lunch_end_within_work > lunch_start_within_work:
+                lunch_duration = (lunch_end_within_work - lunch_start_within_work).total_seconds() / 3600
 
-    # 計算午休時間
-    if lunch_start < end and lunch_end > start:
-        lunch_start_within_work = max(lunch_start, start)
-        lunch_end_within_work = min(lunch_end, end)
-        lunch_duration = (lunch_end_within_work -
-                          lunch_start_within_work).total_seconds() / 3600
+    # Handle optional dinner times
+    if dinner_start and dinner_end and deduct_dinner_time:
+        dinner_start = datetime.combine(date_obj, datetime.strptime(dinner_start, '%H:%M').time())
+        dinner_end = datetime.combine(date_obj, datetime.strptime(dinner_end, '%H:%M').time())
+        if dinner_start < end and dinner_end > start:
+            dinner_start_within_work = max(dinner_start, start)
+            dinner_end_within_work = min(dinner_end, end)
+            if dinner_end_within_work > dinner_start_within_work:
+                dinner_duration = (dinner_end_within_work - dinner_start_within_work).total_seconds() / 3600
 
-    # 計算晚餐時間
-    if dinner_start < end and dinner_end > start:
-        dinner_start_within_work = max(dinner_start, start)
-        dinner_end_within_work = min(dinner_end, end)
-        dinner_duration = (dinner_end_within_work -
-                           dinner_start_within_work).total_seconds() / 3600
+    # Calculate morning and evening hours
+    if evening_shift_start:
+        evening_shift_start = datetime.combine(date_obj, datetime.strptime(evening_shift_start, '%H:%M').time())
+        if start < evening_shift_start:
+            # Calculate morning hours up to the evening shift start
+            morning_end = min(end, evening_shift_start)
+            morning_hours = (morning_end - start - timedelta(hours=lunch_duration)).total_seconds() / 3600
 
-    # 計算早班和晚班時間
-    if start < dinner_start:
-        morning_hours = (min(end, dinner_start) - start -
-                         timedelta(hours=lunch_duration)).total_seconds() / 3600
-    if end > dinner_end:
-        evening_hours = (end - max(start, dinner_end)).total_seconds() / 3600
+        if has_evening_shift and end > evening_shift_start:
+            # Calculate evening hours from the evening shift start
+            evening_start = max(start, evening_shift_start)
+            evening_hours = (end - evening_start - timedelta(hours=dinner_duration)).total_seconds() / 3600
+    else:
+        # If no evening shift is defined, calculate the full duration as morning hours
+        morning_hours = (end - start - timedelta(hours=lunch_duration)).total_seconds() / 3600
 
     return {
         'morning_hours': max(morning_hours, 0),
@@ -70,17 +89,22 @@ def calculate_hours(date, start_time, end_time, lunch_start, lunch_end, dinner_s
         'dinner_duration': dinner_duration
     }
 
-
 def calculate_salary(morning_hours, evening_hours, morning_rate, evening_rate):
+    morning_hours = float(morning_hours)
+    evening_hours = float(evening_hours)
+    morning_rate = float(morning_rate)
+    evening_rate = float(evening_rate)
+
     morning_salary = morning_hours * morning_rate
     evening_salary = evening_hours * evening_rate
     return morning_salary + evening_salary
+    # return morning_salary + evening_salary
 
 
 def load_data():
     # Load data from JSON file
     try:
-        with open('static/data.json', 'r',encoding='utf-8') as f:
+        with open('static/data.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         return data
     except FileNotFoundError:
@@ -96,15 +120,12 @@ def initialize_responses():
     responses = defaultdict(lambda: defaultdict(list), initial_data)
 
 
-# 假設 company_info.json 存儲公司資訊
-with open('static/company_info.json', 'r', encoding='utf-8') as f:
-    company_info = json.load(f)
 
 
 @app.route('/api/companies', methods=['GET'])
 def get_companies():
     # 返回所有公司的名稱和對應的公司資訊
-    return jsonify(company_info)
+    return jsonify(load_company_info())
 
 
 @app.route('/calculate_hours', methods=['POST'])
@@ -114,6 +135,7 @@ def get_hours():
     date = data.get('date')
     start_time = data.get('start_datetime')
     end_time = data.get('end_datetime')
+    company_info = load_company_info()
 
     print("start_time", start_time, "end_time", end_time)
 
@@ -132,9 +154,16 @@ def get_hours():
     morning_rate = company_data.get('morning_rate')
     evening_rate = company_data.get('evening_rate')
 
+    evening_shift_start = company_data.get('evening_shift_start')
+    has_evening_shift = company_data.get('has_evening_shift')
+    deduct_lunch_time = company_data.get('deduct_lunch_time')
+    deduct_dinner_time = company_data.get('deduct_dinner_time')
+    # evening_rate = company_data.get('evening_rate')
+
     try:
+        # date, start_time, end_time, lunch_start, lunch_end, dinner_start, dinner_end, evening_shift_start, has_evening_shift, deduct_lunch_time, deduct_dinner_time
         result = calculate_hours(
-            date, start_time, end_time, lunch_start, lunch_end, dinner_start, dinner_end)
+            date, start_time, end_time, lunch_start, lunch_end, dinner_start, dinner_end, evening_shift_start, has_evening_shift, deduct_lunch_time, deduct_dinner_time)
         morning_hours = result['morning_hours']
         evening_hours = result['evening_hours']
         total_salary = calculate_salary(
@@ -160,49 +189,12 @@ def get_hours():
         return jsonify({company: response})
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
-# @app.route('/calculate_hours', methods=['POST'])
-# def get_hours():
-#     data = request.json
-#     company = data.get('company')
-#     date = data.get('date')
-#     start_time = data.get('start_datetime')
-#     end_time = data.get('end_datetime')
-#     lunch_start = data.get('lunch_start')
-#     lunch_end = data.get('lunch_end')
-#     dinner_start = data.get('dinner_start')
-#     dinner_end = data.get('dinner_end')
-#     morning_rate = data.get('morning_rate')
-#     evening_rate = data.get('evening_rate')
-
-#     if not (company and date and start_time and end_time and lunch_start and lunch_end and dinner_start and dinner_end and morning_rate and evening_rate):
-#         return jsonify({'error': 'All required fields are not provided'}), 400
-
-#     try:
-#         result = calculate_hours(date, start_time, end_time, lunch_start, lunch_end, dinner_start, dinner_end)
-#         morning_hours = result['morning_hours']
-#         evening_hours = result['evening_hours']
-#         total_salary = calculate_salary(morning_hours, evening_hours, morning_rate, evening_rate)
-
-#         response = {
-#             # 'date': date,
-#             'id': str(uuid.uuid4()),
-#             'morning_hours': morning_hours,
-#             'evening_hours': evening_hours,
-#             'lunch_duration': result['lunch_duration'],
-#             'dinner_duration': result['dinner_duration'],
-#             'total_salary': total_salary
-#         }
-
-#         responses[company][date].append(response)
-
-#         return jsonify({company: dict(responses[company])})
-#     except ValueError as e:
-#         return jsonify({'error': str(e)}), 400
 
 
 @app.route('/data', methods=['GET'])
 def get_data():
     return jsonify(responses)
+
 
 @app.route('/reset_res', methods=['GET'])
 def reset_res_data():
@@ -210,6 +202,7 @@ def reset_res_data():
     global responses
     responses = {}  # Return an empty object to indicate success
     return jsonify(responses)
+
 
 @app.route('/remove/<id>', methods=['DELETE'])
 def remove_data(id):
@@ -249,7 +242,8 @@ def export_data():
         return send_file(filename, as_attachment=True)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
+
+
 @app.route('/import', methods=['POST'])
 def import_data():
     global responses
@@ -275,7 +269,8 @@ def calendar():
 
 def calculate_totals(selected_month):
     # Initialize weekly and monthly totals for both company-specific and overall totals
-    weekly_totals = {f'{i}': {'total_salary': 0, 'total_hours': 0} for i in range(1, 6)}
+    weekly_totals = {f'{i}': {'total_salary': 0, 'total_hours': 0}
+                     for i in range(1, 6)}
     company_weekly_totals = {}
     monthly_totals = {'total_salary': 0, 'total_hours': 0}
 
@@ -283,24 +278,27 @@ def calculate_totals(selected_month):
 
     for company, records in data.items():
         # Initialize weekly totals for the company
-        company_weekly_totals[company] = {f'{i}': {'total_salary': 0, 'total_hours': 0} for i in range(1, 6)}
+        company_weekly_totals[company] = {
+            f'{i}': {'total_salary': 0, 'total_hours': 0} for i in range(1, 6)}
         company_monthly_salary = 0
         company_monthly_hours = 0
 
         for date, entries in records.items():
             date_obj = datetime.strptime(date, '%Y-%m-%d')
-            
+
             # Check if the date belongs to the selected month
             if date_obj.strftime('%Y-%m') == selected_month:
                 daily_salary = sum(entry['total_salary'] for entry in entries)
-                daily_hours = sum(entry['morning_hours'] + entry['evening_hours'] for entry in entries)
+                daily_hours = sum(
+                    entry['morning_hours'] + entry['evening_hours'] for entry in entries)
 
                 # Calculate monthly totals for the company
                 company_monthly_salary += daily_salary
                 company_monthly_hours += daily_hours
 
                 # Calculate weekly totals for the company
-                week_number = (date_obj.day - 1) // 7 + 1  # Simplified week calculation
+                week_number = (date_obj.day - 1) // 7 + \
+                    1  # Simplified week calculation
                 week_key = f'{week_number}'
 
                 if week_key in company_weekly_totals[company]:
@@ -349,6 +347,70 @@ def get_monthly_totals():
 @app.route('/api/get_res', methods=['GET'])
 def get_res():
     return jsonify(responses)
+
+
+@app.route('/company_list')
+def company_list():
+    company_info = load_company_info()
+    return render_template('company_list.html', company_info=company_info)
+
+@app.route('/company_add', methods=['GET', 'POST'])
+def company_add():
+    company_info = load_company_info()
+    
+    if request.method == 'POST':
+        if 'add_company' in request.form:
+            new_company_name = request.form.get('name')
+            if new_company_name not in company_info:
+                company_data = {
+                    'lunch_start': request.form.get('lunch_start') or None,
+                    'lunch_end': request.form.get('lunch_end') or None,
+                    'dinner_start': request.form.get('dinner_start') or None,
+                    'dinner_end': request.form.get('dinner_end') or None,
+                    'evening_shift_start': request.form.get('evening_shift_start') or None,
+                    'has_evening_shift': 'on' in request.form,
+                    'morning_rate': float(request.form.get('morning_rate') or 0),
+                    'evening_rate': float(request.form.get('evening_rate') or 0),
+                    'deduct_lunch_time': 'on' in request.form,
+                    'deduct_dinner_time': 'on' in request.form
+                }
+                company_info[new_company_name] = company_data
+                save_company_info(company_info)
+            return redirect(url_for('company_list'))
+
+    return render_template('company_add.html')
+
+@app.route('/company_edit/<company_name>', methods=['GET', 'POST'])
+def company_edit(company_name):
+    company_info = load_company_info()
+    company = company_info.get(company_name, {})
+    
+    if request.method == 'POST':
+        if 'edit_company' in request.form:
+            if company_name in company_info:
+                company_info[company_name] = {
+                    'lunch_start': request.form.get('lunch_start') or None,
+                    'lunch_end': request.form.get('lunch_end') or None,
+                    'dinner_start': request.form.get('dinner_start') or None,
+                    'dinner_end': request.form.get('dinner_end') or None,
+                    'evening_shift_start': request.form.get('evening_shift_start') or None,
+                    'has_evening_shift': 'has_evening_shift' in request.form,  # Checkbox handling
+                    'morning_rate': float(request.form.get('morning_rate') or 0),
+                    'evening_rate': float(request.form.get('evening_rate') or 0),
+                    'deduct_lunch_time': 'deduct_lunch_time' in request.form,  # Checkbox handling
+                    'deduct_dinner_time': 'deduct_dinner_time' in request.form  # Checkbox handling
+                }
+                print(company_info)
+                save_company_info(company_info)
+            return redirect(url_for('company_list'))
+        
+        elif 'delete_company' in request.form:
+            if company_name in company_info:
+                del company_info[company_name]
+                save_company_info(company_info)
+            return redirect(url_for('company_list'))
+
+    return render_template('company_edit.html', company=company, company_name=company_name)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Company</title>
+</head>
+<body>
+    <h1>Add New Company</h1>
+    <form method="POST">
+        <input type="text" name="name" placeholder="Company Name" required>
+        <input type="text" name="lunch_start" placeholder="Lunch Start">
+        <input type="text" name="lunch_end" placeholder="Lunch End">
+        <input type="text" name="dinner_start" placeholder="Dinner Start">
+        <input type="text" name="dinner_end" placeholder="Dinner End">
+        <input type="text" name="evening_shift_start" placeholder="Evening Shift Start">
+        <input type="checkbox" name="has_evening_shift"> Has Evening Shift
+        <input type="number" name="morning_rate" placeholder="Morning Rate" step="0.01">
+        <input type="number" name="evening_rate" placeholder="Evening Rate" step="0.01">
+        <input type="checkbox" name="deduct_lunch_time"> Deduct Lunch Time
+        <input type="checkbox" name="deduct_dinner_time"> Deduct Dinner Time
+        <button type="submit" name="add_company">Add Company</button>
+    </form>
+    <a href="{{ url_for('company_list') }}">Back to Company List</a>
+</body>
+</html>

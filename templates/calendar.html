@@ -12,6 +12,7 @@
 
 <body>
     <h1>Salary Calendar</h1>
+    
 
     <div class="container my-4">
         <div class="row">
@@ -20,9 +21,12 @@
                 <form id="time-form" class="mb-4">
                     <div class="mb-3">
                         <label for="company" class="form-label">Select Company:</label>
+                        
                         <select id="company" name="company" class="form-select">
+                            
                             <!-- Company options will be populated by JavaScript -->
                         </select>
+                        <button id="edit-company-button" class="btn ">Edit Company</button>
                     </div>
                     <div class="mb-3">
                         <label for="date" class="form-label">Select Date:</label>
@@ -83,7 +87,7 @@
         </div>
     </div>
 
-    
+
 
 
     <div class="container_calend">
@@ -94,54 +98,54 @@
                     <option value="" disabled selected>Please select a year</option>
                 </select>
             </div>
-        
+
             <div class="col-md-4 col-lg-4 mb-2">
                 <label for="monthSelect" class="form-label">Month</label>
                 <select id="monthSelect" class="form-select" required>
                     <option value="" disabled selected>Please select a month</option>
                 </select>
             </div>
-        
+
             <div class="col-md-4 col-lg-4 mb-2 d-flex justify-content-end">
                 <button onclick="resetCalendar()" class="btn btn-danger">Reset calendar</button>
             </div>
         </div>
-        
-            <!-- Calendar and Details Panel -->
-            <div class="calendar-details-container">
-                <div id="calendar"></div>
-                <div id="detailsPanel" class="mt-4"></div>
-            </div>
+
+        <!-- Calendar and Details Panel -->
+        <div class="calendar-details-container">
+            <div id="calendar"></div>
+            <div id="detailsPanel" class="mt-4"></div>
         </div>
+    </div>
 
-        <!-- Weekly Totals -->
-        <h2 id="weekly_totals_title" class="my-4">Weekly Totals</h2>
-        <table id="weekly_totals" class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Week</th>
-                    <th>Total Salary</th>
-                    <th>Total Hours</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Weekly totals will be loaded here -->
-            </tbody>
-        </table>
+    <!-- Weekly Totals -->
+    <h2 id="weekly_totals_title" class="my-4">Weekly Totals</h2>
+    <table id="weekly_totals" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Week</th>
+                <th>Total Salary</th>
+                <th>Total Hours</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Weekly totals will be loaded here -->
+        </tbody>
+    </table>
 
-        <!-- Monthly Totals -->
-        <h2 id="monthly_totals_title" class="my-4">Monthly Totals</h2>
-        <table id="monthly_totals" class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Total Salary</th>
-                    <th>Total Hours</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Monthly totals will be loaded here -->
-            </tbody>
-        </table>
+    <!-- Monthly Totals -->
+    <h2 id="monthly_totals_title" class="my-4">Monthly Totals</h2>
+    <table id="monthly_totals" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Total Salary</th>
+                <th>Total Hours</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Monthly totals will be loaded here -->
+        </tbody>
+    </table>
     </div>
 
     <div class="container mb-3">
@@ -173,7 +177,7 @@
             </div>
         </div>
     </div>
-    
+
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
@@ -216,113 +220,103 @@
                     companySelect.appendChild(option);
                 });
             });
-        // fetch('/api/get_res')  // 替换为实际的 API 路径
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         // console.log('Fetched Data for Calendar:', data);
-        //         generateCalendar(data); // 重新生成日历
-        //     })
-        //     .catch(error => {
-        //         console.error('Error fetching data for calendar:', error);
-        //     });
 
-        
         function updateTitles(year, month) {
-                const monthName = new Date(0, parseInt(month) - 1).toLocaleString('en', { month: 'long' });
-                weeklyTotalsTitle.textContent = `Weekly Totals for:  ${year} - ${monthName}( ${month} )`;
-                monthlyTotalsTitle.textContent = `Monthly Totals for:  ${year} - ${monthName}( ${month} ) `;
+            const monthName = new Date(0, parseInt(month) - 1).toLocaleString('en', { month: 'long' });
+            weeklyTotalsTitle.textContent = `Weekly Totals for:  ${year} - ${monthName}( ${month} )`;
+            monthlyTotalsTitle.textContent = `Monthly Totals for:  ${year} - ${monthName}( ${month} ) `;
         }
         function fetchTotals() {
-                const year = yearSelect.value;
-                const month = monthSelect.value;
+            const year = yearSelect.value;
+            const month = monthSelect.value;
 
+            if (year && month) {
                 if (year && month) {
-                    if (year && month) {
-                        updateTitles(year, month);
+                    updateTitles(year, month);
 
-                        fetchWeeklyTotals(year, month);
-                        fetchMonthlyTotals(year, month);
-                    }
+                    fetchWeeklyTotals(year, month);
+                    fetchMonthlyTotals(year, month);
                 }
             }
+        }
 
-            // Add event listeners
-            yearSelect.addEventListener('change', fetchTotals);
-            monthSelect.addEventListener('change', fetchTotals);
+        // Add event listeners
+        yearSelect.addEventListener('change', fetchTotals);
+        monthSelect.addEventListener('change', fetchTotals);
     });
 
 
     function fetchWeeklyTotals(year, month) {
-    const selectedMonth = `${year}-${month}`;
+        const selectedMonth = `${year}-${month}`;
 
-    return fetch(`/api/overall_weekly_totals?month=${selectedMonth}`)
-        .then(response => response.json())
-        .then(data => {
-            const weeklyTableBody = document.querySelector('#weekly_totals tbody');
-            weeklyTableBody.innerHTML = '';
-            for (const [week, totals] of Object.entries(data)) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+        return fetch(`/api/overall_weekly_totals?month=${selectedMonth}`)
+            .then(response => response.json())
+            .then(data => {
+                const weeklyTableBody = document.querySelector('#weekly_totals tbody');
+                weeklyTableBody.innerHTML = '';
+                for (const [week, totals] of Object.entries(data)) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
                     <td>${week}</td>
                     <td>${totals.total_salary}</td>
                     <td>${totals.total_hours}</td>
                 `;
-                weeklyTableBody.appendChild(row);
-            }
-        })
-        .catch(error => console.error('Error fetching weekly totals:', error));
-}
-function resetCalendar() {
-    // Display confirmation dialog
-    if (confirm('Are you sure you want to reset the calendar? This action cannot be undone.')) {
-        // User confirmed, proceed with the reset
-        fetch('/reset_res')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (Object.keys(data).length === 0) {
-                    alert('Calendar has been reset successfully.');
-                    // Optionally, you can clear the details panel and calendar
-                    const year = new Date().getFullYear();
-                    const month = new Date().getMonth() + 1;
-                    document.getElementById('detailsPanel').innerHTML = '';
-                    generateCalendar({}, year, month);
-
-                    fetchWeeklyTotals(year, month);
-                    fetchMonthlyTotals(year, month);
-                } else {
-                    alert('Failed to reset the calendar. Please try again.');
+                    weeklyTableBody.appendChild(row);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while resetting the calendar. Please try again.');
-            });
-    } else {
-        // User canceled, do nothing
-        alert('Calendar reset has been canceled.');
+            .catch(error => console.error('Error fetching weekly totals:', error));
     }
-}
-function fetchMonthlyTotals(year, month) {
-    const selectedMonth = `${year}-${month}`;
+    function resetCalendar() {
+        // Display confirmation dialog
+        if (confirm('Are you sure you want to reset the calendar? This action cannot be undone.')) {
+            // User confirmed, proceed with the reset
+            fetch('/reset_res')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (Object.keys(data).length === 0) {
+                        alert('Calendar has been reset successfully.');
+                        // Optionally, you can clear the details panel and calendar
+                        const year = new Date().getFullYear();
+                        const month = new Date().getMonth() + 1;
+                        document.getElementById('detailsPanel').innerHTML = '';
+                        generateCalendar({}, year, month);
 
-    return fetch(`/api/monthly_totals?month=${selectedMonth}`)
-        .then(response => response.json())
-        .then(data => {
-            const monthlyTableBody = document.querySelector('#monthly_totals tbody');
-            monthlyTableBody.innerHTML = `
+                        fetchWeeklyTotals(year, month);
+                        fetchMonthlyTotals(year, month);
+                    } else {
+                        alert('Failed to reset the calendar. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while resetting the calendar. Please try again.');
+                });
+        } else {
+            // User canceled, do nothing
+            alert('Calendar reset has been canceled.');
+        }
+    }
+    function fetchMonthlyTotals(year, month) {
+        const selectedMonth = `${year}-${month}`;
+
+        return fetch(`/api/monthly_totals?month=${selectedMonth}`)
+            .then(response => response.json())
+            .then(data => {
+                const monthlyTableBody = document.querySelector('#monthly_totals tbody');
+                monthlyTableBody.innerHTML = `
                 <tr>
                     <td>${data.total_salary}</td>
                     <td>${data.total_hours}</td>
                 </tr>
             `;
-        })
-        .catch(error => console.error('Error fetching monthly totals:', error));
-}
+            })
+            .catch(error => console.error('Error fetching monthly totals:', error));
+    }
     // document.getElementById('deleteForm').addEventListener('submit', function (event) {
     //     event.preventDefault();
     //     const id = document.getElementById('deleteId').value;
@@ -401,7 +395,7 @@ function fetchMonthlyTotals(year, month) {
 
                 const year = document.getElementById('yearSelect').value;
                 const month = document.getElementById('monthSelect').value;
-            
+
                 fetch(`/api/get_res`) // Update this API call as needed
                     .then(response => response.json())
                     .then(data => {
@@ -414,165 +408,165 @@ function fetchMonthlyTotals(year, month) {
                     .catch(error => {
                         console.error('Error fetching data for calendar:', error);
                     });
-                })
+            })
 
             .catch(error => {
                 console.error('Error:', error);
             });
     });
 
-// Initialize year and month selectors
-function initYearMonthSelectors() {
-    const currentYear = new Date().getFullYear();
-    const yearSelect = document.getElementById('yearSelect');
-    const monthSelect = document.getElementById('monthSelect');
+    // Initialize year and month selectors
+    function initYearMonthSelectors() {
+        const currentYear = new Date().getFullYear();
+        const yearSelect = document.getElementById('yearSelect');
+        const monthSelect = document.getElementById('monthSelect');
 
-    // Populate year options
-    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
-        const option = document.createElement('option');
-        option.value = year;
-        option.textContent = year;
-        if (year === currentYear) option.selected = true;
-        yearSelect.appendChild(option);
-    }
-
-    // Populate month options
-    for (let i = 1; i <= 12; i++) {
-                let option = document.createElement('option');
-                option.value = i.toString().padStart(2, '0');
-                option.text = new Date(0, i - 1).toLocaleString('en', { month: 'long' });
-                monthSelect.appendChild(option);
-    }
-
-    generateCalendarForSelectedMonth();
-    // Generate calendar based on selected year and month
-    yearSelect.addEventListener('change', generateCalendarForSelectedMonth);
-    monthSelect.addEventListener('change', generateCalendarForSelectedMonth);
-}
-
-// Function to generate the calendar for the selected year and month
-function generateCalendarForSelectedMonth() {
-    const year = document.getElementById('yearSelect').value;
-    const month = document.getElementById('monthSelect').value;
-    
-    fetch(`/api/get_res`) // Update this API call as needed
-        .then(response => response.json())
-        .then(data => {
-            console.log(`Fetched Data for ${year}-${month}:`, data);
-
-            generateCalendar(data, year, month);
-        })
-        .catch(error => {
-            console.error('Error fetching data for calendar:', error);
-        });
-}
-
-// Function to generate the calendar
-function generateCalendar(data, year, month) {
-    const calendarHTML = createMonthlyCalendar(data, year, month);
-    // console.log(calendarHTML);
-    document.getElementById('calendar').innerHTML = calendarHTML;
-    attachDateClickHandlers(data);
-}
-
-// Function to create the monthly calendar grid
-function createMonthlyCalendar(data, year, month) {
-    const allDates = new Set();
-    
-    // Collect all dates
-    for (let company in data) {
-        for (let date in data[company]) {
-            allDates.add(date);
+        // Populate year options
+        for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            if (year === currentYear) option.selected = true;
+            yearSelect.appendChild(option);
         }
+
+        // Populate month options
+        for (let i = 1; i <= 12; i++) {
+            let option = document.createElement('option');
+            option.value = i.toString().padStart(2, '0');
+            option.text = new Date(0, i - 1).toLocaleString('en', { month: 'long' });
+            monthSelect.appendChild(option);
+        }
+
+        generateCalendarForSelectedMonth();
+        // Generate calendar based on selected year and month
+        yearSelect.addEventListener('change', generateCalendarForSelectedMonth);
+        monthSelect.addEventListener('change', generateCalendarForSelectedMonth);
     }
 
-    // Sort dates
-    const sortedDates = Array.from(allDates).sort();
-    
-    let calendarHTML = '<div class="table-responsive"><table class="table table-bordered table-calendar calendar-table">';
-    calendarHTML += `<thead class="table-primary"><tr><th colspan="7">${new Date(year, month - 1).toLocaleString('default', { month: 'long' })} ${year}</th></tr>`;
-    calendarHTML += '<tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead><tbody>';
+    // Function to generate the calendar for the selected year and month
+    function generateCalendarForSelectedMonth() {
+        const year = document.getElementById('yearSelect').value;
+        const month = document.getElementById('monthSelect').value;
 
-    const firstDayOfMonth = new Date(`${year}-${month}-01`).getDay();
-    const daysInMonth = new Date(year, month, 0).getDate();
-    let dayCounter = 1;
+        fetch(`/api/get_res`) // Update this API call as needed
+            .then(response => response.json())
+            .then(data => {
+                console.log(`Fetched Data for ${year}-${month}:`, data);
 
-    // Generate rows
-    for (let week = 0; week < 6; week++) {
-        calendarHTML += '<tr>';
-        for (let day = 0; day < 7; day++) {
-            if (week === 0 && day < firstDayOfMonth) {
-                calendarHTML += '<td></td>'; // Empty cells before the first day of the month
-            } else if (dayCounter > daysInMonth) {
-                calendarHTML += '<td></td>'; // Empty cells after the last day of the month
-            } else {
-                const currentDate = `${year}-${String(month).padStart(2, '0')}-${String(dayCounter).padStart(2, '0')}`;
-                const isWeekend = (day === 0 || day === 6); // Sunday or Saturday
+                generateCalendar(data, year, month);
+            })
+            .catch(error => {
+                console.error('Error fetching data for calendar:', error);
+            });
+    }
 
-                // Check if this date has any data
-                let companyHTML = '';
-                let combinedTotalSalary = 0;
-                let hasData = false;
+    // Function to generate the calendar
+    function generateCalendar(data, year, month) {
+        const calendarHTML = createMonthlyCalendar(data, year, month);
+        // console.log(calendarHTML);
+        document.getElementById('calendar').innerHTML = calendarHTML;
+        attachDateClickHandlers(data);
+    }
 
-                for (let company in data) {
-                    if (data[company][currentDate] && data[company][currentDate].length > 0) {
-                        const totalSalary = data[company][currentDate].reduce((sum, entry) => sum + entry.total_salary, 0);
-                        companyHTML += `${company}: $${totalSalary}<br>`;
-                        combinedTotalSalary += totalSalary; // Accumulate total salary
-                        hasData = true; // Mark that there is data for this date
+    // Function to create the monthly calendar grid
+    function createMonthlyCalendar(data, year, month) {
+        const allDates = new Set();
+
+        // Collect all dates
+        for (let company in data) {
+            for (let date in data[company]) {
+                allDates.add(date);
+            }
+        }
+
+        // Sort dates
+        const sortedDates = Array.from(allDates).sort();
+
+        let calendarHTML = '<div class="table-responsive"><table class="table table-bordered table-calendar calendar-table">';
+        calendarHTML += `<thead class="table-primary"><tr><th colspan="7">${new Date(year, month - 1).toLocaleString('default', { month: 'long' })} ${year}</th></tr>`;
+        calendarHTML += '<tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead><tbody>';
+
+        const firstDayOfMonth = new Date(`${year}-${month}-01`).getDay();
+        const daysInMonth = new Date(year, month, 0).getDate();
+        let dayCounter = 1;
+
+        // Generate rows
+        for (let week = 0; week < 6; week++) {
+            calendarHTML += '<tr>';
+            for (let day = 0; day < 7; day++) {
+                if (week === 0 && day < firstDayOfMonth) {
+                    calendarHTML += '<td></td>'; // Empty cells before the first day of the month
+                } else if (dayCounter > daysInMonth) {
+                    calendarHTML += '<td></td>'; // Empty cells after the last day of the month
+                } else {
+                    const currentDate = `${year}-${String(month).padStart(2, '0')}-${String(dayCounter).padStart(2, '0')}`;
+                    const isWeekend = (day === 0 || day === 6); // Sunday or Saturday
+
+                    // Check if this date has any data
+                    let companyHTML = '';
+                    let combinedTotalSalary = 0;
+                    let hasData = false;
+
+                    for (let company in data) {
+                        if (data[company][currentDate] && data[company][currentDate].length > 0) {
+                            const totalSalary = data[company][currentDate].reduce((sum, entry) => sum + entry.total_salary, 0);
+                            companyHTML += `${company}: $${totalSalary}<br>`;
+                            combinedTotalSalary += totalSalary; // Accumulate total salary
+                            hasData = true; // Mark that there is data for this date
+                        }
                     }
-                }
 
-                const cellClass = isWeekend ? 'weekend' : (hasData ? 'has-data' : '');
-                const buttonHTML = hasData ? `<button class="btn btn-sm btn-outline-info" data-date="${currentDate}">${dayCounter}</button>` : dayCounter;
+                    const cellClass = isWeekend ? 'weekend' : (hasData ? 'has-data' : '');
+                    const buttonHTML = hasData ? `<button class="btn btn-sm btn-outline-info" data-date="${currentDate}">${dayCounter}</button>` : dayCounter;
 
-                calendarHTML += `
+                    calendarHTML += `
                     <td class="${cellClass}">
                         <div class="d-flex flex-column align-items-center">
                             ${buttonHTML}
                             ${hasData ? `<div class="mt-2">${companyHTML}<div class="mt-2"><strong>Today Total Salary:</strong> $${combinedTotalSalary}</div></div>` : ''}
                         </div>
                     </td>`;
-                dayCounter++;
+                    dayCounter++;
+                }
+            }
+            calendarHTML += '</tr>';
+        }
+
+        calendarHTML += '</tbody></table></div>';
+        return calendarHTML;
+    }
+    // Function to attach click handlers to each date button
+    function attachDateClickHandlers(data) {
+        const dateButtons = document.querySelectorAll('button[data-date]');
+        dateButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const selectedDate = this.getAttribute('data-date');
+
+                showDetails(selectedDate, data);
+            });
+        });
+    }
+    // Function to show details when a date is clicked
+    function showDetails(date, data) {
+        let detailsHTML = `<h4>Details for ${formatDate(date)} (${getWeekday(date)})</h4>`;
+        const companies = new Set();
+        let totalDailySalary = 0;
+
+        // Collect all companies for the selected date
+        for (let company in data) {
+            if (data[company][date]) {
+                companies.add(company);
             }
         }
-        calendarHTML += '</tr>';
-    }
 
-    calendarHTML += '</tbody></table></div>';
-    return calendarHTML;
-}
-// Function to attach click handlers to each date button
-function attachDateClickHandlers(data) {
-    const dateButtons = document.querySelectorAll('button[data-date]');
-    dateButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const selectedDate = this.getAttribute('data-date');
-            
-            showDetails(selectedDate, data);
-        });
-    });
-}
-// Function to show details when a date is clicked
-function showDetails(date, data) {
-    let detailsHTML = `<h4>Details for ${formatDate(date)} (${getWeekday(date)})</h4>`;
-    const companies = new Set();
-    let totalDailySalary = 0;
+        companies.forEach(company => {
+            let hasEntries = false;  // Check if there are entries for this company and date
 
-    // Collect all companies for the selected date
-    for (let company in data) {
-        if (data[company][date]) {
-            companies.add(company);
-        }
-    }
-
-    companies.forEach(company => {
-        let hasEntries = false;  // Check if there are entries for this company and date
-        
-        // Check if there are entries for this company on the selected date
-        if (data[company][date] && data[company][date].length > 0) {
-            hasEntries = true;
-            detailsHTML += `
+            // Check if there are entries for this company on the selected date
+            if (data[company][date] && data[company][date].length > 0) {
+                hasEntries = true;
+                detailsHTML += `
             <div class="accordion my-2" id="accordion-${date}-${company}">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="heading-${date}-${company}">
@@ -583,11 +577,11 @@ function showDetails(date, data) {
                     <div id="collapse-${date}-${company}" class="accordion-collapse collapse" aria-labelledby="heading-${date}-${company}" data-bs-parent="#accordion-${date}-${company}">
                         <div class="accordion-body">`;
 
-            data[company][date].forEach(entry => {
-                const entrySalary = entry.total_salary;
-                totalDailySalary += entrySalary;
+                data[company][date].forEach(entry => {
+                    const entrySalary = entry.total_salary;
+                    totalDailySalary += entrySalary;
 
-                detailsHTML += `
+                    detailsHTML += `
                 <div id="entry-${entry.id}" class="d-flex flex-column border-bottom mb-2 pb-2">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -603,137 +597,157 @@ function showDetails(date, data) {
                         <button class="btn btn-danger btn-sm mt-2" onclick="removeEntry('${entry.id}')">Delete</button>
                     </div>
                 </div>`;
-            });
+                });
 
-            detailsHTML += `</div></div></div></div>`;
-        }
-
-        // Remove accordion if no entries for this company on the selected date
-        if (!hasEntries) {
-            const companyAccordion = document.getElementById(`accordion-${date}-${company}`);
-            if (companyAccordion) {
-                companyAccordion.remove();
+                detailsHTML += `</div></div></div></div>`;
             }
-        }
-    });
 
-    detailsHTML += `
+            // Remove accordion if no entries for this company on the selected date
+            if (!hasEntries) {
+                const companyAccordion = document.getElementById(`accordion-${date}-${company}`);
+                if (companyAccordion) {
+                    companyAccordion.remove();
+                }
+            }
+        });
+
+        detailsHTML += `
     <div class="alert alert-warning mt-2">
         <strong>Total Salary for the Day: $${totalDailySalary}</strong>
     </div>`;
 
-    document.getElementById('detailsPanel').innerHTML = detailsHTML;
-}
+        document.getElementById('detailsPanel').innerHTML = detailsHTML;
+    }
 
 
 
-// 
-// JavaScript function to send DELETE request
-function removeEntry(id) {
-    if (confirm('Are you sure you want to delete this entry?')) {
-        fetch(`/remove/${id}`, {
-            method: 'DELETE'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                
-                alert(data.message);
+    // 
+    // JavaScript function to send DELETE request
+    function removeEntry(id) {
+        if (confirm('Are you sure you want to delete this entry?')) {
+            fetch(`/remove/${id}`, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
 
-                
-                // Refresh the details or update the UI as needed
-                 // 获取当前选择的年份和月份
-                const year = document.getElementById('yearSelect').value;
-                const month = document.getElementById('monthSelect').value;
+                        // Get the total daily salary from the HTML
+                        const totalSalaryElement = document.querySelector('#detailsPanel .alert.alert-warning');
+                        let totalDailySalary = 0;
+                        if (totalSalaryElement) {
+                            const match = totalSalaryElement.innerHTML.match(/\$([\d,]+)/);
+                            if (match) {
+                                totalDailySalary = parseFloat(match[1].replace(/,/g, ''));
+                            }
+                        }
 
-                // 获取最新的数据并更新日历和总计表格
-                fetch(`/api/get_res`)
-                    .then(response => response.json())
-                    .then(data => {
+                        // Get the entry salary to subtract
                         const entryElement = document.getElementById(`entry-${id}`);
+                        let entrySalary = 0;
+                        if (entryElement) {
+                            const entryMatch = entryElement.querySelector('.text-success strong').innerText.match(/\$([\d,]+)/);
+                            if (entryMatch) {
+                                entrySalary = parseFloat(entryMatch[1].replace(/,/g, ''));
+                            }
+                        }
+
+                        // Calculate the new total daily salary
+                        totalDailySalary -= entrySalary;
+
+                        // Remove the entry from the details panel
                         if (entryElement) {
                             entryElement.remove();
                         }
 
-                        // const selectedDate = document.querySelector('button[data-date].active').getAttribute('data-date');
-                        // refreshDetailsPanel(selectedDate);
+                        // Update the total daily salary in the HTML
+                        if (totalSalaryElement) {
+                            totalSalaryElement.innerHTML = `<strong>Total Salary for the Day: $${totalDailySalary.toFixed(2)}</strong>`;
+                        }
 
-                        generateCalendar(data, year, month);
-                        //refresh detail
-                        
-                        fetchWeeklyTotals(year, month);
-                        fetchMonthlyTotals(year, month);
-                    })
-                    .catch(error => console.error('Error fetching data for calendar:', error));
-            } else if (data.error) {
-                alert(data.error);
+                        // Refresh the details or update the UI as needed
+                        // Get current selected year and month
+                        const year = document.getElementById('yearSelect').value;
+                        const month = document.getElementById('monthSelect').value;
+
+                        // Fetch latest data and update calendar and totals
+                        fetch(`/api/get_res`)
+                            .then(response => response.json())
+                            .then(data => {
+                                generateCalendar(data, year, month);
+                                fetchWeeklyTotals(year, month);
+                                fetchMonthlyTotals(year, month);
+                            })
+                            .catch(error => console.error('Error fetching data for calendar:', error));
+                    } else if (data.error) {
+                        alert(data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    // Function to get the tooltip content for a date
+    function getTooltipContent(date, data) {
+        let tooltip = '';
+        let totalDailySalary = 0;
+        const companies = new Set();
+
+        for (let company in data) {
+            if (data[company][date]) {
+                companies.add(company);
+                data[company][date].forEach(entry => {
+                    totalDailySalary += entry.total_salary;
+                });
             }
+        }
+
+        if (companies.size > 0) {
+            tooltip = `Companies: ${Array.from(companies).join(', ')}\nTotal Salary: $${totalDailySalary}`;
+        }
+
+        return tooltip;
+    }
+
+    // Function to format the date as YYYY-MM-DD
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Function to get the weekday name
+    function getWeekday(dateString) {
+        const date = new Date(dateString);
+        const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        return weekdays[date.getDay()];
+    }
+
+    function saveData() {
+        fetch('/save', {
+            method: 'POST'
         })
-        
-        .catch(error => console.error('Error:', error));
-    }
-}
-
-// Function to get the tooltip content for a date
-function getTooltipContent(date, data) {
-    let tooltip = '';
-    let totalDailySalary = 0;
-    const companies = new Set();
-
-    for (let company in data) {
-        if (data[company][date]) {
-            companies.add(company);
-            data[company][date].forEach(entry => {
-                totalDailySalary += entry.total_salary;
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);  // Show success message
+                    const year = document.getElementById('yearSelect').value;
+                    const month = document.getElementById('monthSelect').value;
+                    generateCalendar(data, year, month);
+                    fetchWeeklyTotals(year, month);
+                    fetchMonthlyTotals(year, month);
+                } else if (data.error) {
+                    alert(data.error);  // Show error message
+                }
+            })
+            .catch(error => {
+                console.error('Error saving data:', error);
+                alert('Failed to save data. Please try again.');
             });
-        }
     }
-
-    if (companies.size > 0) {
-        tooltip = `Companies: ${Array.from(companies).join(', ')}\nTotal Salary: $${totalDailySalary}`;
-    }
-
-    return tooltip;
-}
-
-// Function to format the date as YYYY-MM-DD
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-// Function to get the weekday name
-function getWeekday(dateString) {
-    const date = new Date(dateString);
-    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    return weekdays[date.getDay()];
-}
-
-function saveData() {
-    fetch('/save', {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message);  // Show success message
-            const year = document.getElementById('yearSelect').value;
-            const month = document.getElementById('monthSelect').value;
-            generateCalendar(data, year, month);
-            fetchWeeklyTotals(year, month);
-            fetchMonthlyTotals(year, month);
-        } else if (data.error) {
-            alert(data.error);  // Show error message
-        }
-    })
-    .catch(error => {
-        console.error('Error saving data:', error);
-        alert('Failed to save data. Please try again.');
-    });
-}
 
     function exportData() {
         // Fetch the file from the server for download
@@ -760,80 +774,95 @@ function saveData() {
                 alert('Failed to export data. Please try again.');
             });
     }
-    document.getElementById('selectFileButton').addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent default button behavior
-    document.getElementById('importFile').click(); // Trigger file input click
-});
-
-document.getElementById('importFile').addEventListener('change', function() {
-    const fileNameDisplay = document.getElementById('fileNameDisplay');
-    const importButton = document.getElementById('importButton');
-    const fileImportContainer = document.getElementById('fileImportContainer');
-    const file = this.files[0];
-
-    if (file) {
-        fileNameDisplay.textContent = `${file.name}`;
-        // importButton.classList.remove('d-none'); // Show Import button
-        // fileImportContainer.classList.remove('d-none'); // Show container
-    } else {
-        fileNameDisplay.textContent = 'No file chosen'; // Show default message
-        // importButton.classList.add('d-none'); // Hide Import button
-        // fileImportContainer.classList.add('d-none'); // Hide container
-    }
-});
-
-// Trigger the import function when the Import button is clicked
-document.getElementById('importButton').addEventListener('click', function() {
-    importData();
-});
-
-function importData() {
-    const fileInput = document.getElementById('importFile');
-    const file = fileInput.files[0]; // Get the first selected file
-
-    if (!file) {
-        alert('Please select a file to import.');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    fetch('/import', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.message) {
-            alert(data.message); // Show success message
-
-            // Optionally, re-generate the calendar or refresh the page
-            const year = document.getElementById('yearSelect').value;
-            const month = document.getElementById('monthSelect').value;
-            generateCalendar(data, year, month);
-            fetchWeeklyTotals(year, month);
-            fetchMonthlyTotals(year, month);
-        } else if (data.error) {
-            alert(data.error); // Show error message
-        }
-    })
-    .catch(error => {
-        console.error('Error importing data:', error);
-        alert('Failed to import data. Please try again.');
+    document.getElementById('selectFileButton').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent default button behavior
+        document.getElementById('importFile').click(); // Trigger file input click
     });
-}
-        // 生成日曆，假設在JS變量'data'中有數據
-        // const data = JSON.parse('{{ data|safe }}');
-        // generateCalendar(data);
+
+    document.getElementById('importFile').addEventListener('change', function () {
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const importButton = document.getElementById('importButton');
+        const fileImportContainer = document.getElementById('fileImportContainer');
+        const file = this.files[0];
+
+        if (file) {
+            fileNameDisplay.textContent = `${file.name}`;
+            // importButton.classList.remove('d-none'); // Show Import button
+            // fileImportContainer.classList.remove('d-none'); // Show container
+        } else {
+            fileNameDisplay.textContent = 'No file chosen'; // Show default message
+            // importButton.classList.add('d-none'); // Hide Import button
+            // fileImportContainer.classList.add('d-none'); // Hide container
+        }
+    });
+
+    // Trigger the import function when the Import button is clicked
+    document.getElementById('importButton').addEventListener('click', function () {
+        importData();
+    });
+
+    function importData() {
+        const fileInput = document.getElementById('importFile');
+        const file = fileInput.files[0]; // Get the first selected file
+
+        if (!file) {
+            alert('Please select a file to import.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/import', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.message) {
+                    alert(data.message)
+                    const year = document.getElementById('yearSelect').value;
+                    const month = document.getElementById('monthSelect').value;
+
+                    // 获取最新的数据并更新日历和总计表格
+                    fetch(`/api/get_res`)
+                        .then(response => response.json())
+                        .then(data => {
+
+                            generateCalendar(data, year, month);
+                            fetchWeeklyTotals(year, month);
+                            fetchMonthlyTotals(year, month);
+                        })
+                        .catch(error => console.error('Error fetching data for calendar:', error));
+
+
+                } else if (data.error) {
+                    alert(data.error); // Show error message
+                }
+            })
+            .catch(error => {
+                console.error('Error importing data:', error);
+                alert('Failed to import data. Please try again.');
+            });
+    }
+
+    document.getElementById('edit-company-button').addEventListener('click', function() {
+            // Replace 'your_company_id' with the actual company ID or dynamically set it as needed
+            // var companyId = 'your_company_id'; 
+            var url = `/company_list`;
+            window.location.href = url;
+        });
+    // 生成日曆，假設在JS變量'data'中有數據
+    // const data = JSON.parse('{{ data|safe }}');
+    // generateCalendar(data);
     // Initialize selectors and generate calendar on page load
-initYearMonthSelectors();
-generateCalendarForSelectedMonth();
+    initYearMonthSelectors();
+    generateCalendarForSelectedMonth();
 </script>
 </body>
 

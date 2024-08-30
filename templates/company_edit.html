@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Company</title>
+</head>
+<body>
+    <h1>Edit Company Information</h1>
+<form method="POST">
+    <input type="hidden" name="existing_company_name" value="{{ company_name }}">
+    
+    <label for="lunch_start">Lunch Start:</label>
+    <input type="text" id="lunch_start" name="lunch_start" placeholder="Lunch Start" value="{{ company.lunch_start or '' }}">
+    
+    <label for="lunch_end">Lunch End:</label>
+    <input type="text" id="lunch_end" name="lunch_end" placeholder="Lunch End" value="{{ company.lunch_end or '' }}">
+    
+    <label for="dinner_start">Dinner Start:</label>
+    <input type="text" id="dinner_start" name="dinner_start" placeholder="Dinner Start" value="{{ company.dinner_start or '' }}">
+    
+    <label for="dinner_end">Dinner End:</label>
+    <input type="text" id="dinner_end" name="dinner_end" placeholder="Dinner End" value="{{ company.dinner_end or '' }}">
+    
+    <label for="evening_shift_start">Evening Shift Start:</label>
+    <input type="text" id="evening_shift_start" name="evening_shift_start" placeholder="Evening Shift Start" value="{{ company.evening_shift_start or '' }}">
+    
+    <label for="has_evening_shift">
+        <input type="checkbox" id="has_evening_shift" name="has_evening_shift" {% if company.has_evening_shift %}checked{% endif %}> Has Evening Shift
+    </label>
+    
+    <label for="morning_rate">Morning Rate:</label>
+    <input type="number" id="morning_rate" name="morning_rate" placeholder="Morning Rate" value="{{ company.morning_rate or '' }}" step="0.01">
+    
+    <label for="evening_rate">Evening Rate:</label>
+    <input type="number" id="evening_rate" name="evening_rate" placeholder="Evening Rate" value="{{ company.evening_rate or '' }}" step="0.01">
+    
+    <label for="deduct_lunch_time">
+        <input type="checkbox" id="deduct_lunch_time" name="deduct_lunch_time" {% if company.deduct_lunch_time %}checked{% endif %}> Deduct Lunch Time
+    </label>
+    
+    <label for="deduct_dinner_time">
+        <input type="checkbox" id="deduct_dinner_time" name="deduct_dinner_time" {% if company.deduct_dinner_time %}checked{% endif %}> Deduct Dinner Time
+    </label>
+    
+    <button type="submit" name="edit_company">Update Company</button>
+</form>
+    <a href="{{ url_for('company_list') }}">Back to Company List</a>
+</body>
+
+</html>

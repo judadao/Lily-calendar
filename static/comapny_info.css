@@ -1,0 +1,146 @@
+/* General body styling */
+body {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f8; /* Light gray background for the entire page */
+    color: #333;
+}
+
+/* Headings styling */
+h1 {
+    margin-bottom: 20px;
+    font-size: 2rem;
+    color: #003366; /* Dark blue for primary headings */
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #003366; /* Dark blue underline */
+    padding-bottom: 10px;
+    color: #003366; /* Dark blue for sub-headings */
+}
+
+/* Form container styling */
+.container {
+    background-color: #ffffff; /* White background for forms and tables */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    padding: 20px;
+    margin-bottom: 30px;
+    max-width: 1200px;
+}
+
+/* Table styling */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead th {
+    background-color: #003366; /* Dark blue for table headers */
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light gray for even rows */
+}
+
+.table tbody tr:hover {
+    background-color: #e9ecef; /* Slightly darker gray for hover effect */
+}
+
+.table td,
+.table th {
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+/* Calendar day cells */
+.table td {
+    background-color: #ffffff; /* Ensure white background for day cells */
+    color: #333; /* Ensure text color is dark for visibility */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.table td:hover {
+    background-color: #e0e0e0; /* Light gray for hover background */
+    color: #000; /* Ensure text color is black for contrast */
+}
+
+/* Highlight weekends */
+.table td.weekend {
+    background-color: #ffdddd; /* Light red background for weekends */
+    color: #ff0000; /* Red text for weekends */
+}
+
+.table td.weekend:hover {
+    background-color: #ffcccc; /* Slightly darker red for hover effect */
+    color: #cc0000; /* Darker red text on hover for contrast */
+}
+
+/* Button styling */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    background-color: #003366; /* Dark blue for buttons */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #002244; /* Even darker blue for hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+.btn-primary {
+    background-color: #003366;
+}
+
+.btn-secondary {
+    background-color: #6c757d; /* Bootstrap Secondary Color */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Darker gray for hover */
+}
+
+.btn-warning {
+    background-color: #ffc107; /* Bootstrap Warning Color */
+    color: #212529; /* Dark color for text */
+}
+
+.btn-warning:hover {
+    background-color: #e0a800; /* Darker yellow for hover */
+}
+
+.btn-danger {
+    background-color: #dc3545; /* Bootstrap Danger Color */
+}
+
+.btn-danger:hover {
+    background-color: #c82333; /* Darker red for hover */
+}
+
+/* Button group styling */
+.btn-group {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+}
+
+.btn-group .btn {
+    margin-bottom: 0; /* Ensure buttons are flush with the row */
+}
+
+/* Optional: Adjust the form button to remove extra margin */
+.button-row {
+    text-align: center;
+}

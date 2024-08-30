@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company List</title>
+</head>
+<body>
+    <h1>Company List</h1>
+    <a href="{{ url_for('company_add') }}">Add New Company</a>
+    <button id="edit-company-button" class="btn ">back index page</button>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Company Name</th>
+                <th>Lunch Start</th>
+                <th>Lunch End</th>
+                <th>Dinner Start</th>
+                <th>Dinner End</th>
+                <th>Evening Shift Start</th>
+                <th>Morning Rate</th>
+                <th>Evening Rate</th>
+                <th>Has Evening Shift</th>
+                <th>Deduct Lunch Time</th>
+                <th>Deduct Dinner Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for name, info in company_info.items() %}
+            <tr>
+                <td>{{ name }}</td>
+                <td>{{ info.lunch_start or 'N/A' }}</td>
+                <td>{{ info.lunch_end or 'N/A' }}</td>
+                <td>{{ info.dinner_start or 'N/A' }}</td>
+                <td>{{ info.dinner_end or 'N/A' }}</td>
+                <td>{{ info.evening_shift_start or 'N/A' }}</td>
+                <td>{{ info.morning_rate }}</td>
+                <td>{{ info.evening_rate }}</td>
+                <td>{{ 'Yes' if info.has_evening_shift else 'No' }}</td>
+                <td>{{ 'Yes' if info.deduct_lunch_time else 'No' }}</td>
+                <td>{{ 'Yes' if info.deduct_dinner_time else 'No' }}</td>
+                <td>
+                    <a href="{{ url_for('company_edit', company_name=name) }}">Edit</a>
+                    <form action="{{ url_for('company_edit', company_name=name) }}" method="post" style="display:inline;">
+                        <button type="submit" name="delete_company">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+
+<script>
+    document.getElementById('edit-company-button').addEventListener('click', function() {
+                // Replace 'your_company_id' with the actual company ID or dynamically set it as needed
+                // var companyId = 'your_company_id'; 
+                var url = `/`;
+                window.location.href = url;
+            });
+    
+    </script>
+</html>
