@@ -24,7 +24,7 @@
             margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 80%;
+            width: 40%;
         }
 
         .close {
@@ -102,47 +102,47 @@
             <form id="add-company-form" method="POST" action="" onsubmit="return validateAddCompanyForm()">
                 <table>
                     <tr>
-                        <td><label for="company_name">Company Name</label></td>
+                        <td><label for="company_name">公司名稱</label></td>
                         <td><input type="text" id="add_company_name" name="name" required></td>
                     </tr>
                     <tr>
-                        <td><label for="has_evening_shift">Has Evening Shift:</label></td>
+                        <td><label for="has_evening_shift">是否早晚班區別:</label></td>
                         <td><input type="checkbox" id="add_has_evening_shift" name="has_evening_shift" onchange="toggleEveningShiftFields()"></td>
                     </tr>
                     <tr>
-                        <td><label for="deduct_lunch_time">Deduct Lunch Time:</label></td>
+                        <td><label for="deduct_lunch_time">當天時數是否扣除午休時間:<br>(Yes = 午休時間不算錢)</label></td>
                         <td><input type="checkbox" id="add_deduct_lunch_time" name="deduct_lunch_time" onchange="toggleLunchFields()"></td>
                     </tr>
                     <tr>
-                        <td><label for="deduct_dinner_time">Deduct Dinner Time:</label></td>
+                        <td><label for="deduct_dinner_time">當天時數是否扣除晚餐時間:<br>(Yes = 晚餐時間不算錢)</label></td>
                         <td><input type="checkbox" id="add_deduct_dinner_time" name="deduct_dinner_time" onchange="toggleDinnerFields()"></td>
                     </tr>
                     <tr id="lunch_start_row">
-                        <td><label for="lunch_start">Lunch Start:</label></td>
+                        <td><label for="lunch_start">午休開始時間:</label></td>
                         <td><input type="time" id="add_lunch_start" name="lunch_start" placeholder="Lunch Start"></td>
                     </tr>
                     <tr id="lunch_end_row">
-                        <td><label for="lunch_end">Lunch End:</label></td>
+                        <td><label for="lunch_end">午休結束時間:</label></td>
                         <td><input type="time" id="add_lunch_end" name="lunch_end" placeholder="Lunch End"></td>
                     </tr>
                     <tr id="dinner_start_row">
-                        <td><label for="dinner_start">Dinner Start:</label></td>
+                        <td><label for="dinner_start">晚餐開始時間:</label></td>
                         <td><input type="time" id="add_dinner_start" name="dinner_start" placeholder="Dinner Start"></td>
                     </tr>
                     <tr id="dinner_end_row">
-                        <td><label for="dinner_end">Dinner End:</label></td>
+                        <td><label for="dinner_end">晚餐結束時間:</label></td>
                         <td><input type="time" id="add_dinner_end" name="dinner_end" placeholder="Dinner End"></td>
                     </tr>
                     <tr id="evening_shift_start_row">
-                        <td><label for="evening_shift_start">Evening Shift Start:</label></td>
+                        <td><label for="evening_shift_start">晚班開始時間:<br>(從此時間點開始使用晚班薪水計算)</label></td>
                         <td><input type="time" id="add_evening_shift_start" name="evening_shift_start" placeholder="Evening Shift Start"></td>
                     </tr>
                     <tr>
-                        <td><label for="morning_rate">Morning Rate:</label></td>
+                        <td><label for="morning_rate">早班薪水($):</label></td>
                         <td><input type="number" id="add_morning_rate" name="morning_rate" placeholder="Morning Rate" step="0.01"></td>
                     </tr>
                     <tr>
-                        <td><label for="evening_rate">Evening Rate:</label></td>
+                        <td><label for="evening_rate">晚班薪水($):</label></td>
                         <td><input type="number" id="add_evening_rate" name="evening_rate" placeholder="Evening Rate" step="0.01"></td>
                     </tr>
                     <tr>
@@ -158,18 +158,18 @@
     <table>
         <thead>
             <tr>
-                <th>Company Name</th>
-                <th>Lunch Start</th>
-                <th>Lunch End</th>
-                <th>Dinner Start</th>
-                <th>Dinner End</th>
-                <th>Evening Shift Start</th>
-                <th>Morning Rate</th>
-                <th>Evening Rate</th>
-                <th>Has Evening Shift</th>
-                <th>Deduct Lunch Time</th>
-                <th>Deduct Dinner Time</th>
-                <th>Actions</th>
+                <th>公司名稱</th>
+                <th>午休開始時間</th>
+                <th>午休結束時間</th>
+                <th>晚餐開始時間</th>
+                <th>晚餐結束時間</th>
+                <th>晚班開始時間<br>(從此時間點開始使用晚班薪水計算)</th>
+                <th>早班薪水</th>
+                <th>晚班薪水</th>
+                <th>是否有早晚班區別</th>
+                <th>當天時數是否扣除午休時間<br>(Yes = 午休時間不算錢)</th>
+                <th>當天時數是否扣除晚餐時間<br>(Yes = 晚餐時間不算錢)</th>
+                <th>修改</th>
             </tr>
         </thead>
         <tbody>
@@ -191,8 +191,8 @@
                 <td>{{ info.dinner_start or 'N/A' }}</td>
                 <td>{{ info.dinner_end or 'N/A' }}</td>
                 <td>{{ info.evening_shift_start or 'N/A' }}</td>
-                <td>{{ info.morning_rate }}</td>
-                <td>{{ info.evening_rate }}</td>
+                <td>${{ info.morning_rate }}</td>
+                <td>${{ info.evening_rate }}</td>
                 <td>{{ 'Yes' if info.has_evening_shift else 'No' }}</td>
                 <td>{{ 'Yes' if info.deduct_lunch_time else 'No' }}</td>
                 <td>{{ 'Yes' if info.deduct_dinner_time else 'No' }}</td>
@@ -220,52 +220,52 @@
                         <td><label for="existing_company_name">Lunch Start</label></td>
                     </tr> -->
                     <tr>
-                        <td><label for="company_name">Company Name</label></td>
+                        <td><label for="company_name">公司名稱</label></td>
                         <td><span id="existing_company_name"></span></td>
                     </tr>
                     <tr>
-                        <td><label for="lunch_start">Lunch Start:</label></td>
+                        <td><label for="lunch_start">午休開始時間:</label></td>
                         <td><input type="time" id="lunch_start" name="lunch_start" placeholder="Lunch Start"></td>
                     </tr>
                     <tr>
-                        <td><label for="lunch_end">Lunch End:</label></td>
+                        <td><label for="lunch_end">午休結束時間:</label></td>
                         <td><input type="time" id="lunch_end" name="lunch_end" placeholder="Lunch End"></td>
                     </tr>
                     <tr>
-                        <td><label for="dinner_start">Dinner Start:</label></td>
+                        <td><label for="dinner_start">晚餐開始時間:</label></td>
                         <td><input type="time" id="dinner_start" name="dinner_start" placeholder="Dinner Start"></td>
                     </tr>
                     <tr>
-                        <td><label for="dinner_end">Dinner End:</label></td>
+                        <td><label for="dinner_end">晚餐結束時間:</label></td>
                         <td><input type="time" id="dinner_end" name="dinner_end" placeholder="Dinner End"></td>
                     </tr>
                     <tr>
-                        <td><label for="evening_shift_start">Evening Shift Start:</label></td>
+                        <td><label for="evening_shift_start">晚班開始時間:<br>(從此時間點開始使用晚班薪水計算)</label></td>
                         <td><input type="time" id="evening_shift_start" name="evening_shift_start" placeholder="Evening Shift Start"></td>
                     </tr>
                     <tr>
-                        <td><label for="morning_rate">Morning Rate:</label></td>
+                        <td><label for="morning_rate">早班薪水:</label></td>
                         <td><input type="number" id="morning_rate" name="morning_rate" placeholder="Morning Rate" step="0.01"></td>
                     </tr>
                     <tr>
-                        <td><label for="evening_rate">Evening Rate:</label></td>
+                        <td><label for="evening_rate">晚班薪水:</label></td>
                         <td><input type="number" id="evening_rate" name="evening_rate" placeholder="Evening Rate" step="0.01"></td>
                     </tr>
                     <tr>
-                        <td><label for="has_evening_shift">Has Evening Shift:</label></td>
+                        <td><label for="has_evening_shift">是否有早晚班區別:</label></td>
                         <td><input type="checkbox" id="has_evening_shift" name="has_evening_shift"></td>
                     </tr>
                     <tr>
-                        <td><label for="deduct_lunch_time">Deduct Lunch Time:</label></td>
+                        <td><label for="deduct_lunch_time">當天時數是否扣除午休時間:<br>(Yes = 午休時間不算錢)</label></td>
                         <td><input type="checkbox" id="deduct_lunch_time" name="deduct_lunch_time"></td>
                     </tr>
                     <tr>
-                        <td><label for="deduct_dinner_time">Deduct Dinner Time:</label></td>
+                        <td><label for="deduct_dinner_time">當天時數是否扣除晚餐時間:<br>(Yes =  晚餐時間不算錢)</label></td>
                         <td><input type="checkbox" id="deduct_dinner_time" name="deduct_dinner_time"></td>
                     </tr>
                     <tr>
                         <td style="text-align:center;">
-                            <button type="submit" name="edit_company">Update Company</button>
+                            <button type="submit" name="edit_company">Update Company Info</button>
                         </td>
                     </tr>
                 </table>
@@ -358,17 +358,17 @@ function validateEditCompanyForm() {
     
 
     if (hasEveningShift && !eveningShiftStart) {
-        alert('晚班時間為必填項目!');
+        alert('計算晚班薪水的開始時間為必填項目!');
         return false;
     }
 
-    if (deductLunchTime && (lunchStart || lunchEnd)) {
-        alert('午休時段無支付薪水，因此午休開始時間和結束時間為必填項目!');
+    if (!deductLunchTime && (!lunchStart || !lunchEnd)) {
+        alert('午餐時間段所得已排除於餘總薪水，午餐開始時間和結束時間為必填項目!');
         return false;
     }
 
-    if (deductDinnerTime&& (dinnerStart || dinnerEnd)) {
-        alert('晚餐休時段無支付薪水，因此晚餐開始時間和結束時間為必填項目!');
+    if (!deductDinnerTime&& (!dinnerStart || !dinnerEnd)) {
+        alert('晚餐時間段所得已排除於餘總薪水，晚餐開始時間和結束時間為必填項目!');
         return false;
     }
 

@@ -8,8 +8,8 @@
         "has_evening_shift": true,
         "morning_rate": 330.0,
         "evening_rate": 400.0,
-        "deduct_lunch_time": false,
-        "deduct_dinner_time": true
+        "deduct_lunch_time": true,
+        "deduct_dinner_time": false
     },
     "原力5": {
         "lunch_start": "12:30",
@@ -20,8 +20,8 @@
         "has_evening_shift": true,
         "morning_rate": 330.0,
         "evening_rate": 330.0,
-        "deduct_lunch_time": false,
-        "deduct_dinner_time": true
+        "deduct_lunch_time": true,
+        "deduct_dinner_time": false
     },
     "原力6": {
         "lunch_start": "12:30",
@@ -32,8 +32,8 @@
         "has_evening_shift": true,
         "morning_rate": 380.0,
         "evening_rate": 330.0,
-        "deduct_lunch_time": false,
-        "deduct_dinner_time": true
+        "deduct_lunch_time": true,
+        "deduct_dinner_time": false
     },
     "維力": {
         "lunch_start": "00:00",
@@ -44,8 +44,8 @@
         "has_evening_shift": true,
         "morning_rate": 330.0,
         "evening_rate": 380.0,
-        "deduct_lunch_time": true,
-        "deduct_dinner_time": true
+        "deduct_lunch_time": false,
+        "deduct_dinner_time": false
     },
     "和謙": {
         "lunch_start": "00:00",
@@ -56,18 +56,6 @@
         "has_evening_shift": false,
         "morning_rate": 380.0,
         "evening_rate": 380.0,
-        "deduct_lunch_time": false,
-        "deduct_dinner_time": false
-    },
-    "test": {
-        "lunch_start": null,
-        "lunch_end": null,
-        "dinner_start": null,
-        "dinner_end": null,
-        "evening_shift_start": null,
-        "has_evening_shift": false,
-        "morning_rate": 0.0,
-        "evening_rate": 0.0,
         "deduct_lunch_time": true,
         "deduct_dinner_time": true
     }

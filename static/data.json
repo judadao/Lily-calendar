@@ -171,6 +171,32 @@
                 "dinner_duration": 0,
                 "total_salary": 1600.0
             }
+        ],
+        "2024-09-06": [
+            {
+                "id": "70235e8f-4218-4045-9578-b203cf96d27f",
+                "morning_hours": 16.0,
+                "evening_hours": 0,
+                "lunch_duration": 0,
+                "dinner_duration": 0,
+                "total_salary": 5280.0
+            },
+            {
+                "id": "f704f6db-4166-477c-a5b3-4ccca9f85593",
+                "morning_hours": 4.5,
+                "evening_hours": 3.0,
+                "lunch_duration": 0,
+                "dinner_duration": 0.5,
+                "total_salary": 2685.0
+            },
+            {
+                "id": "dfefcb2f-ea9c-4028-a85f-eec1d943d25b",
+                "morning_hours": 4.5,
+                "evening_hours": 3.0,
+                "lunch_duration": 0,
+                "dinner_duration": 0.5,
+                "total_salary": 2685.0
+            }
         ]
     },
     "\u7dad\u529b": {
