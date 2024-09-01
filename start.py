@@ -378,7 +378,7 @@ def company_add():
                 save_company_info(company_info)
             return redirect(url_for('company_list'))
 
-    return render_template('company_add.html')
+    return redirect(url_for('company_list'))
 
 @app.route('/company_edit/<company_name>', methods=['GET', 'POST'])
 def company_edit(company_name):

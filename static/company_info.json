@@ -28,8 +28,8 @@
         "lunch_end": null,
         "dinner_start": null,
         "dinner_end": null,
-        "evening_shift_start": null,
-        "has_evening_shift": false,
+        "evening_shift_start": "20:33",
+        "has_evening_shift": true,
         "morning_rate": 123.0,
         "evening_rate": 12321.0,
         "deduct_lunch_time": false,
@@ -92,6 +92,30 @@
         "has_evening_shift": false,
         "morning_rate": 123.0,
         "evening_rate": 213123.0,
+        "deduct_lunch_time": false,
+        "deduct_dinner_time": false
+    },
+    "ascsa": {
+        "lunch_start": null,
+        "lunch_end": null,
+        "dinner_start": null,
+        "dinner_end": null,
+        "evening_shift_start": null,
+        "has_evening_shift": false,
+        "morning_rate": 0.0,
+        "evening_rate": 0.0,
+        "deduct_lunch_time": false,
+        "deduct_dinner_time": false
+    },
+    "cassacsa": {
+        "lunch_start": null,
+        "lunch_end": null,
+        "dinner_start": null,
+        "dinner_end": null,
+        "evening_shift_start": null,
+        "has_evening_shift": false,
+        "morning_rate": 0.0,
+        "evening_rate": 0.0,
         "deduct_lunch_time": false,
         "deduct_dinner_time": false
     }

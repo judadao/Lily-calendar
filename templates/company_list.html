@@ -41,6 +41,20 @@
             cursor: pointer;
         }
 
+        .add_close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .add_close:hover,
+        .add_close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         /* Button Styles */
         .btn {
             padding: 10px 20px;
@@ -78,9 +92,72 @@
 </head>
 <body>
     <h1>Company List</h1>
-    <form action="{{ url_for('company_add') }}" method="get" style="display:inline;">
-        <button type="submit" class="btn">Add New Company</button>
-    </form>
+    <button class="add-btn"> add company</button>
+
+    <div id="add-company-modal" class="modal">
+        <div class="modal-content">
+            <span class="add_close">&times;</span>
+            <h2>Add Company Information</h2>
+
+            <form id="add-company-form" method="POST" action="" onsubmit="return validateAddCompanyForm()">
+                
+                <table>
+                    <!-- <tr>
+                        <td><label for="existing_company_name">Lunch Start</label></td>
+                    </tr> -->
+                    <tr>
+                        <td><label for="company_name">Company Name</label></td>
+                        <td><input type="text" id="add_company_name" name="name" ></td>
+                    </tr>
+                    <tr>
+                        <td><label for="lunch_start">Lunch Start:</label></td>
+                        <td><input type="time" id="add_lunch_start" name="lunch_start" placeholder="Lunch Start"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="lunch_end">Lunch End:</label></td>
+                        <td><input type="time" id="add_lunch_end" name="lunch_end" placeholder="Lunch End"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="dinner_start">Dinner Start:</label></td>
+                        <td><input type="time" id="add_dinner_start" name="dinner_start" placeholder="Dinner Start"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="dinner_end">Dinner End:</label></td>
+                        <td><input type="time" id="add_dinner_end" name="dinner_end" placeholder="Dinner End"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="evening_shift_start">Evening Shift Start:</label></td>
+                        <td><input type="time" id="add_evening_shift_start" name="evening_shift_start" placeholder="Evening Shift Start"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="morning_rate">Morning Rate:</label></td>
+                        <td><input type="number" id="add_morning_rate" name="morning_rate" placeholder="Morning Rate" step="0.01"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="evening_rate">Evening Rate:</label></td>
+                        <td><input type="number" id="add_evening_rate" name="evening_rate" placeholder="Evening Rate" step="0.01"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="has_evening_shift">Has Evening Shift:</label></td>
+                        <td><input type="checkbox" id="add_has_evening_shift" name="has_evening_shift"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="deduct_lunch_time">Deduct Lunch Time:</label></td>
+                        <td><input type="checkbox" id="add_deduct_lunch_time" name="deduct_lunch_time"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="deduct_dinner_time">Deduct Dinner Time:</label></td>
+                        <td><input type="checkbox" id="add_deduct_dinner_time" name="deduct_dinner_time"></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">
+                            <button type="submit" name="add_company">Add Company</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
     <button id="back-to-index" class="btn">Back to Index Page</button>
     <table>
         <thead>
@@ -140,7 +217,7 @@
             <span class="close">&times;</span>
             <h2>Edit Company Information</h2>
 
-            <form id="edit-company-form" method="POST" actio="">
+            <form id="edit-company-form" method="POST" action="" onsubmit="return validateEditCompanyForm()" >
                 
                 <table>
                     <!-- <tr>
@@ -210,6 +287,7 @@
     var editButtons = document.querySelectorAll(".edit-btn");
     const form = document.getElementById('edit-company-form');
 
+
     editButtons.forEach(function(btn) {
         btn.onclick = function() {
             var companyName = btn.getAttribute('data-company');
@@ -234,15 +312,101 @@
         };
     });
 
-    closeModalButton.onclick = function() {
-        modal.style.display = "none";
-    };
+var add_modal = document.getElementById("add-company-modal");
+var add_closeModalButton = document.getElementsByClassName("add_close")[0]; // Changed class name to 'close'
+var addButtons = document.querySelectorAll(".add-btn");
+const add_form = document.getElementById('add-company-form');
 
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
+addButtons.forEach(function(btn) {
+    btn.onclick = function() {
+        // Set form action if necessary
+        add_form.action = `/company_add`;
+
+        // Display the modal
+        add_modal.style.display = "block";
     };
+});
+
+// Close the modal when the close button is clicked
+add_closeModalButton.onclick = function() {
+    add_modal.style.display = "none";
+    // modal.style.display = "none";
+};
+
+closeModalButton.onclick = function() {
+    // add_modal.style.display = "none";
+    modal.style.display = "none";
+};
+
+// Close the modal when clicking outside of the modal
+window.onclick = function(event) {
+    if (event.target == add_modal) {
+        add_modal.style.display = "none";
+    }else if(event.target == modal){
+        modal.style.display = "none";
+    }
+};
+
+
+function validateEditCompanyForm() {
+    const hasEveningShift = document.getElementById('has_evening_shift').checked;
+    const eveningShiftStart = document.getElementById('evening_shift_start').value;
+
+    const deductLunchTime = document.getElementById('deduct_lunch_time').checked;
+    const lunchStart = document.getElementById('lunch_start').value;
+    const lunchEnd = document.getElementById('lunch_end').value;
+
+    const deductDinnerTime = document.getElementById('deduct_dinner_time').checked;
+    const dinnerStart = document.getElementById('dinner_start').value;
+    const dinnerEnd = document.getElementById('dinner_end').value;
+
+    if (hasEveningShift && !eveningShiftStart) {
+        alert('晚班時間為必填項目!');
+        return false;
+    }
+
+    if (deductLunchTime && (!lunchStart || !lunchEnd)) {
+        alert('午餐時間段所得已排除於餘總薪水，午餐開始時間和結束時間為必填項目!');
+        return false;
+    }
+
+    if (deductDinnerTime && (!dinnerStart || !dinnerEnd)) {
+        alert('晚餐時間段所得已排除於餘總薪水，晚餐開始時間和結束時間為必填項目!');
+        return false;
+    }
+
+    return true;
+}
+
+function validateAddCompanyForm() {
+    const hasEveningShift = document.getElementById('add_has_evening_shift').checked;
+    const eveningShiftStart = document.getElementById('add_evening_shift_start').value;
+
+    const deductLunchTime = document.getElementById('add_deduct_lunch_time').checked;
+    const lunchStart = document.getElementById('add_lunch_start').value;
+    const lunchEnd = document.getElementById('add_lunch_end').value;
+
+    const deductDinnerTime = document.getElementById('add_deduct_dinner_time').checked;
+    const dinnerStart = document.getElementById('add_dinner_start').value;
+    const dinnerEnd = document.getElementById('add_dinner_end').value;
+
+    if (hasEveningShift && !eveningShiftStart) {
+        alert('晚班時間為必填項目!');
+        return false;
+    }
+
+    if (deductLunchTime && (!lunchStart || !lunchEnd)) {
+        alert('午餐時間段所得已排除於餘總薪水，午餐開始時間和結束時間為必填項目!');
+        return false;
+    }
+
+    if (deductDinnerTime && (!dinnerStart || !dinnerEnd)) {
+        alert('晚餐時間段所得已排除於餘總薪水，晚餐開始時間和結束時間為必填項目!');
+        return false;
+    }
+
+    return true;
+}
     </script>
 </body>
 </html>
