@@ -7,7 +7,9 @@
 </head>
 <body>
     <h1>Company List</h1>
-    <a href="{{ url_for('company_add') }}">Add New Company</a>
+    <form action="{{ url_for('company_add') }}" method="get" style="display:inline;">
+        <button type="submit" class="btn">Add New Company</button>
+    </form>
     <button id="edit-company-button" class="btn ">back index page</button>
     <table border="1">
         <thead>
@@ -41,7 +43,9 @@
                 <td>{{ 'Yes' if info.deduct_lunch_time else 'No' }}</td>
                 <td>{{ 'Yes' if info.deduct_dinner_time else 'No' }}</td>
                 <td>
-                    <a href="{{ url_for('company_edit', company_name=name) }}">Edit</a>
+                    <form action="{{ url_for('company_edit', company_name=name) }}" method="get" style="display:inline;">
+                        <button type="submit" name="edit_company">Edit</button>
+                    </form>
                     <form action="{{ url_for('company_edit', company_name=name) }}" method="post" style="display:inline;">
                         <button type="submit" name="delete_company">Delete</button>
                     </form>

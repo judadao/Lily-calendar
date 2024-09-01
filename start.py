@@ -47,7 +47,7 @@ def calculate_hours(date, start_time, end_time, lunch_start=None, lunch_end=None
         }
 
     # Handle optional lunch times
-    if lunch_start and lunch_end and deduct_lunch_time:
+    if lunch_start and lunch_end and not deduct_lunch_time:
         lunch_start = datetime.combine(date_obj, datetime.strptime(lunch_start, '%H:%M').time())
         lunch_end = datetime.combine(date_obj, datetime.strptime(lunch_end, '%H:%M').time())
         if lunch_start < end and lunch_end > start:
@@ -57,7 +57,7 @@ def calculate_hours(date, start_time, end_time, lunch_start=None, lunch_end=None
                 lunch_duration = (lunch_end_within_work - lunch_start_within_work).total_seconds() / 3600
 
     # Handle optional dinner times
-    if dinner_start and dinner_end and deduct_dinner_time:
+    if dinner_start and dinner_end and not deduct_dinner_time:
         dinner_start = datetime.combine(date_obj, datetime.strptime(dinner_start, '%H:%M').time())
         dinner_end = datetime.combine(date_obj, datetime.strptime(dinner_end, '%H:%M').time())
         if dinner_start < end and dinner_end > start:

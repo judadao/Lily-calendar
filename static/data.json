@@ -1,50 +1,24 @@
 {
-    "原力_平日_1234": {
-        "lunch_start": "12:30",
-        "lunch_end": "13:30",
-        "dinner_start": "17:30",
-        "dinner_end": "17:30",
-        "evening_shift_start": "18:00",
-        "has_evening_shift": true,
-        "morning_rate": 330,
-        "evening_rate": 400,
-        "deduct_lunch_time": true,
-        "deduct_dinner_time": false
-    },
-    "原力_平日_5": {
-        "lunch_start": "12:30",
-        "lunch_end": "13:30",
-        "dinner_start": "18:00",
-        "dinner_end": "18:00",
-        "evening_shift_start": "18:00",
-        "has_evening_shift": true,
-        "morning_rate": 330,
-        "evening_rate": 330,
-        "deduct_lunch_time": true,
-        "deduct_dinner_time": true
-    },
-    "原力_週末": {
-        "lunch_start": null,
-        "lunch_end": null,
-        "dinner_start": null,
-        "dinner_end": null,
-        "evening_shift_start": "19:00",
-        "has_evening_shift": true,
-        "morning_rate": 350,
-        "evening_rate": 370,
-        "deduct_lunch_time": false,
-        "deduct_dinner_time": false
-    },
-    "原力_夜班": {
-        "lunch_start": null,
-        "lunch_end": null,
-        "dinner_start": null,
-        "dinner_end": null,
-        "evening_shift_start": "20:00",
-        "has_evening_shift": true,
-        "morning_rate": 300,
-        "evening_rate": 350,
-        "deduct_lunch_time": false,
-        "deduct_dinner_time": false
+    "\u539f\u529b_\u5e73\u65e5_1234": {
+        "2024-09-11": [
+            {
+                "id": "bd070c61-3185-45e3-b89d-a1153dc0cc3e",
+                "morning_hours": 4.5,
+                "evening_hours": 0,
+                "lunch_duration": 0.5,
+                "dinner_duration": 0,
+                "total_salary": 1485.0
+            }
+        ],
+        "2024-09-20": [
+            {
+                "id": "3f217bc5-07a8-4330-ac5d-dbf508a2088c",
+                "morning_hours": 4.5,
+                "evening_hours": 0,
+                "lunch_duration": 0.5,
+                "dinner_duration": 0,
+                "total_salary": 1485.0
+            }
+        ]
     }
 }

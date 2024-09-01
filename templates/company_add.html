@@ -4,23 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Company</title>
+    <script>
+        function toggleFields() {
+            const hasEveningShift = document.getElementById('has_evening_shift').checked;
+            const deductLunchTime = document.getElementById('deduct_lunch_time').checked;
+            const deductDinnerTime = document.getElementById('deduct_dinner_time').checked;
+
+            document.getElementById('evening_shift_fields').style.display = hasEveningShift ? 'table-row' : 'none';
+            document.getElementById('lunch_time_fields').style.display = deductLunchTime ? 'table-row' : 'none';
+            document.getElementById('dinner_time_fields').style.display = deductDinnerTime ? 'table-row' : 'none';
+        }
+
+        function validateForm() {
+            const hasEveningShift = document.getElementById('has_evening_shift').checked;
+            const eveningShiftStart = document.getElementById('evening_shift_start').value;
+
+            const deductLunchTime = document.getElementById('deduct_lunch_time').checked;
+            const lunchStart = document.getElementById('lunch_start').value;
+            const lunchEnd = document.getElementById('lunch_end').value;
+
+            const deductDinnerTime = document.getElementById('deduct_dinner_time').checked;
+            const dinnerStart = document.getElementById('dinner_start').value;
+            const dinnerEnd = document.getElementById('dinner_end').value;
+
+            if (hasEveningShift && !eveningShiftStart) {
+                alert('晚班時間為必填項目!');
+                return false;
+            }
+
+            if (!deductLunchTime && (!lunchStart || !lunchEnd)) {
+                alert('因為午餐不算錢，午餐開始時間和結束時間為必填項目!');
+                return false;
+            }
+
+            if (!deductDinnerTime && (!dinnerStart || !dinnerEnd)) {
+                alert('因為晚餐不算錢，晚餐開始時間和結束時間為必填項目!');
+                return false;
+            }
+
+            return true;
+        }
+
+        window.onload = function() {
+            toggleFields(); // Initialize the visibility based on the default state
+        };
+    </script>
 </head>
 <body>
     <h1>Add New Company</h1>
-    <form method="POST">
-        <input type="text" name="name" placeholder="Company Name" required>
-        <input type="text" name="lunch_start" placeholder="Lunch Start">
-        <input type="text" name="lunch_end" placeholder="Lunch End">
-        <input type="text" name="dinner_start" placeholder="Dinner Start">
-        <input type="text" name="dinner_end" placeholder="Dinner End">
-        <input type="text" name="evening_shift_start" placeholder="Evening Shift Start">
-        <input type="checkbox" name="has_evening_shift"> Has Evening Shift
-        <input type="number" name="morning_rate" placeholder="Morning Rate" step="0.01">
-        <input type="number" name="evening_rate" placeholder="Evening Rate" step="0.01">
-        <input type="checkbox" name="deduct_lunch_time"> Deduct Lunch Time
-        <input type="checkbox" name="deduct_dinner_time"> Deduct Dinner Time
-        <button type="submit" name="add_company">Add Company</button>
+    <form action="{{ url_for('company_list') }}" method="get" style="display:inline;">
+        <button type="submit">Back to Company List</button>
     </form>
-    <a href="{{ url_for('company_list') }}">Back to Company List</a>
+    <form method="POST" onsubmit="return validateForm()">
+        <table>
+            <tr>
+                <td><label for="name">公司名字</label></td>
+                <td><input type="text" id="name" name="name" placeholder="Company Name" required></td>
+            </tr>
+            <tr>
+                <td><label for="has_evening_shift">公司是否有晚班</label></td>
+                <td><input type="checkbox" id="has_evening_shift" name="has_evening_shift" onchange="toggleFields()"></td>
+            </tr>
+            <tr>
+                <td><label for="deduct_lunch_time">午餐時間有薪水</label></td>
+                <td><input type="checkbox" id="deduct_lunch_time" name="deduct_lunch_time" onchange="toggleFields()"></td>
+            </tr>
+            <tr>
+                <td><label for="deduct_dinner_time">晚餐時間有薪水</label></td>
+                <td><input type="checkbox" id="deduct_dinner_time" name="deduct_dinner_time" onchange="toggleFields()"></td>
+            </tr>
+            <tr id="lunch_time_fields">
+                <td><label for="lunch_start">午餐開始時間:</label></td>
+                <td><input type="time" id="lunch_start" name="lunch_start" placeholder="Lunch Start"></td>
+            </tr>
+            <tr id="lunch_time_fields">
+                <td><label for="lunch_end">午餐結束時間:</label></td>
+                <td><input type="time" id="lunch_end" name="lunch_end" placeholder="Lunch End"></td>
+            </tr>
+            <tr id="dinner_time_fields">
+                <td><label for="dinner_start">晚餐開始時間:</label></td>
+                <td><input type="time" id="dinner_start" name="dinner_start" placeholder="Dinner Start"></td>
+            </tr>
+            <tr id="dinner_time_fields">
+                <td><label for="dinner_end">晚餐結束時間:</label></td>
+                <td><input type="time" id="dinner_end" name="dinner_end" placeholder="Dinner End"></td>
+            </tr>
+            <tr id="evening_shift_fields">
+                <td><label for="evening_shift_start">晚班開始時間:</label></td>
+                <td>
+                    <input type="time" id="evening_shift_start" name="evening_shift_start" placeholder="Evening Shift Start">
+                    <span style="font-size: 0.9em; color: gray;">(若有晚班，晚班時間必填)</span>
+                </td>
+            </tr>
+            
+            <tr>
+                <td><label for="morning_rate">早班薪水:</label></td>
+                <td><input type="number" id="morning_rate" name="morning_rate" placeholder="Morning Rate" step="0.01"></td>
+            </tr>
+            <tr id="evening_shift_fields">
+                <td><label for="evening_rate">晚班薪水:</label></td>
+                <td>
+                    <input type="number" id="evening_rate" name="evening_rate" placeholder="Evening Rate" step="0.01">
+                    <span style="font-size: 0.9em; color: gray;">(若有晚班，晚班薪水必填)</span>
+                </td>
+            </tr>
+            
+            <tr>
+                <td colspan="2"><button type="submit" name="add_company">Add Company</button></td>
+            </tr>
+        </table>
+    </form>
 </body>
 </html>
