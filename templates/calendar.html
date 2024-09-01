@@ -736,9 +736,14 @@
                     alert(data.message);  // Show success message
                     const year = document.getElementById('yearSelect').value;
                     const month = document.getElementById('monthSelect').value;
-                    generateCalendar(data, year, month);
-                    fetchWeeklyTotals(year, month);
-                    fetchMonthlyTotals(year, month);
+                    fetch(`/api/get_res`)
+                            .then(response => response.json())
+                            .then(data => {
+                                generateCalendar(data, year, month);
+                                fetchWeeklyTotals(year, month);
+                                fetchMonthlyTotals(year, month);
+                            })
+                            .catch(error => console.error('Error fetching data for calendar:', error));
                 } else if (data.error) {
                     alert(data.error);  // Show error message
                 }
