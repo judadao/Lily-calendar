@@ -368,11 +368,11 @@ def company_add():
                     'dinner_start': request.form.get('dinner_start') or None,
                     'dinner_end': request.form.get('dinner_end') or None,
                     'evening_shift_start': request.form.get('evening_shift_start') or None,
-                    'has_evening_shift': 'on' in request.form,
+                    'has_evening_shift': 'has_evening_shift' in request.form,  # This will be True if the checkbox is checked
                     'morning_rate': float(request.form.get('morning_rate') or 0),
                     'evening_rate': float(request.form.get('evening_rate') or 0),
-                    'deduct_lunch_time': 'on' in request.form,
-                    'deduct_dinner_time': 'on' in request.form
+                    'deduct_lunch_time': 'deduct_lunch_time' in request.form,
+                    'deduct_dinner_time': 'deduct_dinner_time' in request.form
                 }
                 company_info[new_company_name] = company_data
                 save_company_info(company_info)

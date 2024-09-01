@@ -4,14 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company List</title>
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
     <h1>Company List</h1>
     <form action="{{ url_for('company_add') }}" method="get" style="display:inline;">
         <button type="submit" class="btn">Add New Company</button>
     </form>
-    <button id="edit-company-button" class="btn ">back index page</button>
-    <table border="1">
+    <button id="back-to-index" class="btn">Back to Index Page</button>
+    <table>
         <thead>
             <tr>
                 <th>Company Name</th>
@@ -30,7 +101,17 @@
         </thead>
         <tbody>
             {% for name, info in company_info.items() %}
-            <tr>
+            <tr id="row-{{ name }}" 
+                data-lunch-start="{{ info.lunch_start or '' }}" 
+                data-lunch-end="{{ info.lunch_end or '' }}" 
+                data-dinner-start="{{ info.dinner_start or '' }}" 
+                data-dinner-end="{{ info.dinner_end or '' }}" 
+                data-evening-shift-start="{{ info.evening_shift_start or '' }}" 
+                data-morning-rate="{{ info.morning_rate }}" 
+                data-evening-rate="{{ info.evening_rate }}" 
+                data-has-evening-shift="{{ info.has_evening_shift }}" 
+                data-deduct-lunch-time="{{ info.deduct_lunch_time }}" 
+                data-deduct-dinner-time="{{ info.deduct_dinner_time }}">
                 <td>{{ name }}</td>
                 <td>{{ info.lunch_start or 'N/A' }}</td>
                 <td>{{ info.lunch_end or 'N/A' }}</td>
@@ -43,9 +124,7 @@
                 <td>{{ 'Yes' if info.deduct_lunch_time else 'No' }}</td>
                 <td>{{ 'Yes' if info.deduct_dinner_time else 'No' }}</td>
                 <td>
-                    <form action="{{ url_for('company_edit', company_name=name) }}" method="get" style="display:inline;">
-                        <button type="submit" name="edit_company">Edit</button>
-                    </form>
+                    <button class="edit-btn" data-company="{{ name }}">Edit</button>
                     <form action="{{ url_for('company_edit', company_name=name) }}" method="post" style="display:inline;">
                         <button type="submit" name="delete_company">Delete</button>
                     </form>
@@ -54,15 +133,116 @@
             {% endfor %}
         </tbody>
     </table>
-</body>
 
-<script>
-    document.getElementById('edit-company-button').addEventListener('click', function() {
-                // Replace 'your_company_id' with the actual company ID or dynamically set it as needed
-                // var companyId = 'your_company_id'; 
-                var url = `/`;
-                window.location.href = url;
-            });
-    
+    <!-- Modal for Editing Company -->
+    <div id="edit-company-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Company Information</h2>
+
+            <form id="edit-company-form" method="POST" actio="">
+                
+                <table>
+                    <!-- <tr>
+                        <td><label for="existing_company_name">Lunch Start</label></td>
+                    </tr> -->
+                    <tr>
+                        <td><label for="company_name">Company Name</label></td>
+                        <td><span id="existing_company_name"></span></td>
+                    </tr>
+                    <tr>
+                        <td><label for="lunch_start">Lunch Start:</label></td>
+                        <td><input type="time" id="lunch_start" name="lunch_start" placeholder="Lunch Start"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="lunch_end">Lunch End:</label></td>
+                        <td><input type="time" id="lunch_end" name="lunch_end" placeholder="Lunch End"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="dinner_start">Dinner Start:</label></td>
+                        <td><input type="time" id="dinner_start" name="dinner_start" placeholder="Dinner Start"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="dinner_end">Dinner End:</label></td>
+                        <td><input type="time" id="dinner_end" name="dinner_end" placeholder="Dinner End"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="evening_shift_start">Evening Shift Start:</label></td>
+                        <td><input type="time" id="evening_shift_start" name="evening_shift_start" placeholder="Evening Shift Start"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="morning_rate">Morning Rate:</label></td>
+                        <td><input type="number" id="morning_rate" name="morning_rate" placeholder="Morning Rate" step="0.01"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="evening_rate">Evening Rate:</label></td>
+                        <td><input type="number" id="evening_rate" name="evening_rate" placeholder="Evening Rate" step="0.01"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="has_evening_shift">Has Evening Shift:</label></td>
+                        <td><input type="checkbox" id="has_evening_shift" name="has_evening_shift"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="deduct_lunch_time">Deduct Lunch Time:</label></td>
+                        <td><input type="checkbox" id="deduct_lunch_time" name="deduct_lunch_time"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="deduct_dinner_time">Deduct Dinner Time:</label></td>
+                        <td><input type="checkbox" id="deduct_dinner_time" name="deduct_dinner_time"></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">
+                            <button type="submit" name="edit_company">Update Company</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('back-to-index').addEventListener('click', function() {
+        window.location.href = '/'; // Adjust to your index page URL
+    });
+
+    var modal = document.getElementById("edit-company-modal");
+    var closeModalButton = document.getElementsByClassName("close")[0];
+    var editButtons = document.querySelectorAll(".edit-btn");
+    const form = document.getElementById('edit-company-form');
+
+    editButtons.forEach(function(btn) {
+        btn.onclick = function() {
+            var companyName = btn.getAttribute('data-company');
+            var row = document.getElementById('row-' + companyName);
+            
+            // Populate form with data attributes
+            form.action = `/company_edit/${companyName}`;
+            document.getElementById("existing_company_name").textContent = companyName;
+
+            document.getElementById("lunch_start").value = row.getAttribute('data-lunch-start') || "";
+            document.getElementById("lunch_end").value = row.getAttribute('data-lunch-end') || "";
+            document.getElementById("dinner_start").value = row.getAttribute('data-dinner-start') || "";
+            document.getElementById("dinner_end").value = row.getAttribute('data-dinner-end') || "";
+            document.getElementById("evening_shift_start").value = row.getAttribute('data-evening-shift-start') || "";
+            document.getElementById("morning_rate").value = row.getAttribute('data-morning-rate') || "";
+            document.getElementById("evening_rate").value = row.getAttribute('data-evening-rate') || "";
+            document.getElementById("has_evening_shift").checked = row.getAttribute('data-has-evening-shift') === 'True';
+            document.getElementById("deduct_lunch_time").checked = row.getAttribute('data-deduct-lunch-time') === 'True';
+            document.getElementById("deduct_dinner_time").checked = row.getAttribute('data-deduct-dinner-time') === 'True';
+
+            modal.style.display = "block";
+        };
+    });
+
+    closeModalButton.onclick = function() {
+        modal.style.display = "none";
+    };
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
     </script>
+</body>
 </html>

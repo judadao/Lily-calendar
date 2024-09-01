@@ -10,40 +10,45 @@
             const deductLunchTime = document.getElementById('deduct_lunch_time').checked;
             const deductDinnerTime = document.getElementById('deduct_dinner_time').checked;
 
-            document.getElementById('evening_shift_fields').style.display = hasEveningShift ? 'table-row' : 'none';
-            document.getElementById('lunch_time_fields').style.display = deductLunchTime ? 'table-row' : 'none';
-            document.getElementById('dinner_time_fields').style.display = deductDinnerTime ? 'table-row' : 'none';
+            document.getElementById('evening_shift_start_field').style.display = hasEveningShift ? 'table-row' : 'none';
+            document.getElementById('lunch_start_field').style.display = deductLunchTime ? 'table-row' : 'none';
+            document.getElementById('lunch_end_field').style.display = deductLunchTime ? 'table-row' : 'none';
+            document.getElementById('dinner_start_field').style.display = deductDinnerTime ? 'table-row' : 'none';
+            document.getElementById('dinner_end_field').style.display = deductDinnerTime ? 'table-row' : 'none';
         }
 
         function validateForm() {
-            const hasEveningShift = document.getElementById('has_evening_shift').checked;
-            const eveningShiftStart = document.getElementById('evening_shift_start').value;
+    const hasEveningShift = document.getElementById('has_evening_shift').checked;
+    const eveningShiftStart = document.getElementById('evening_shift_start').value;
 
-            const deductLunchTime = document.getElementById('deduct_lunch_time').checked;
-            const lunchStart = document.getElementById('lunch_start').value;
-            const lunchEnd = document.getElementById('lunch_end').value;
+    const deductLunchTime = document.getElementById('deduct_lunch_time').checked;
+    const lunchStart = document.getElementById('lunch_start').value;
+    const lunchEnd = document.getElementById('lunch_end').value;
 
-            const deductDinnerTime = document.getElementById('deduct_dinner_time').checked;
-            const dinnerStart = document.getElementById('dinner_start').value;
-            const dinnerEnd = document.getElementById('dinner_end').value;
+    const deductDinnerTime = document.getElementById('deduct_dinner_time').checked;
+    const dinnerStart = document.getElementById('dinner_start').value;
+    const dinnerEnd = document.getElementById('dinner_end').value;
 
-            if (hasEveningShift && !eveningShiftStart) {
-                alert('晚班時間為必填項目!');
-                return false;
-            }
+    // Validate evening shift time if evening shift is checked
+    if (hasEveningShift && !eveningShiftStart) {
+        alert('晚班時間為必填項目!');
+        return false;
+    }
 
-            if (!deductLunchTime && (!lunchStart || !lunchEnd)) {
-                alert('因為午餐不算錢，午餐開始時間和結束時間為必填項目!');
-                return false;
-            }
+    // Validate lunch time fields if lunch time is deducted
+    if (deductLunchTime && (!lunchStart || !lunchEnd)) {
+        alert('午餐時間已計入薪水，午餐開始時間和結束時間為必填項目!');
+        return false;
+    }
 
-            if (!deductDinnerTime && (!dinnerStart || !dinnerEnd)) {
-                alert('因為晚餐不算錢，晚餐開始時間和結束時間為必填項目!');
-                return false;
-            }
+    // Validate dinner time fields if dinner time is deducted
+    if (deductDinnerTime && (!dinnerStart || !dinnerEnd)) {
+        alert('晚餐時間已計入薪水，晚餐開始時間和結束時間為必填項目!');
+        return false;
+    }
 
-            return true;
-        }
+    return true;
+}
 
         window.onload = function() {
             toggleFields(); // Initialize the visibility based on the default state
@@ -73,28 +78,25 @@
                 <td><label for="deduct_dinner_time">晚餐時間有薪水</label></td>
                 <td><input type="checkbox" id="deduct_dinner_time" name="deduct_dinner_time" onchange="toggleFields()"></td>
             </tr>
-            <tr id="lunch_time_fields">
+            <tr id="lunch_start_field">
                 <td><label for="lunch_start">午餐開始時間:</label></td>
                 <td><input type="time" id="lunch_start" name="lunch_start" placeholder="Lunch Start"></td>
             </tr>
-            <tr id="lunch_time_fields">
+            <tr id="lunch_end_field">
                 <td><label for="lunch_end">午餐結束時間:</label></td>
                 <td><input type="time" id="lunch_end" name="lunch_end" placeholder="Lunch End"></td>
             </tr>
-            <tr id="dinner_time_fields">
+            <tr id="dinner_start_field">
                 <td><label for="dinner_start">晚餐開始時間:</label></td>
                 <td><input type="time" id="dinner_start" name="dinner_start" placeholder="Dinner Start"></td>
             </tr>
-            <tr id="dinner_time_fields">
+            <tr id="dinner_end_field">
                 <td><label for="dinner_end">晚餐結束時間:</label></td>
                 <td><input type="time" id="dinner_end" name="dinner_end" placeholder="Dinner End"></td>
             </tr>
-            <tr id="evening_shift_fields">
+            <tr id="evening_shift_start_field">
                 <td><label for="evening_shift_start">晚班開始時間:</label></td>
-                <td>
-                    <input type="time" id="evening_shift_start" name="evening_shift_start" placeholder="Evening Shift Start">
-                    <span style="font-size: 0.9em; color: gray;">(若有晚班，晚班時間必填)</span>
-                </td>
+                <td><input type="time" id="evening_shift_start" name="evening_shift_start" placeholder="Evening Shift Start"></td>
             </tr>
             
             <tr>
