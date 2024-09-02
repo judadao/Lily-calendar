@@ -2,71 +2,87 @@
 
 ## 使用說明
 
+### 特色
+* 簡潔、方便以及快速試算薪水。
+* 設定好公司訊息之後只需要輸入你上下班的時間就幫你計算
+    1. 每周薪水
+    2. 每個月薪水/工時。
+* 具有存檔跟讀檔功能。可以將安排好的工作內容匯出以及匯入，不怕遺失。藉由匯入可在不同裝置上繼續編輯
+* 直覺化的月曆顯示，可在月曆上刪除修改
+* 選擇年月之後可以及時運算當月工時跟薪水
+![日曆](images/calendar_index.png)
 ### 安裝與啟動
-
+中文版
 1. **安裝 Flask**：
    ```bash
    pip install flask
    ```
 
-2. **克隆倉庫**：
+2. **git clone 這 repo**：
     ```bash
-   git clone <repository-url>
+   git clone https://github.com/judadao/Lily-calendar.git
    ```
 
 3. **進入專案目錄**：
     ```bash
-   cd lily-calendar
+   cd Lily-calendar
    ```
 
-4. **啟動應用程序**：
+4. **啟動**：
     ```bash
    python ./start.py
    ```
 
 5. **打開瀏覽器**，訪問 http://127.0.0.1:5000 開始使用。
 
-### 客製化
-To add or modify company information, edit the static/company_info.json file. You will see content like the following:
 
-```json
+### 設定公司
 
-{
-    "CompanyB": {
-        "lunch_start": "11:00",
-        "lunch_end": "12:00",
-        "dinner_start": "17:00",
-        "dinner_end": "18:00",
-        "morning_rate": 25,
-        "evening_rate": 35
-    }
-}
-```
-You can change the company name, lunch and dinner start and end times, as well as morning and evening shift rates (evening shifts start after dinner).
+
+* 在使用之前先設定兼職公司的資訊
+![日曆](images/company_list.png)
+
+* 新增公司
+![日曆](images/add_comapny_info.png)
+新增公司的話可以依據公司的狀況先做勾選。勾選後會自動移除以及生成需要填寫的表格(會自動幫您隱藏不需要填寫的欄位)
+    *   有三個項目必須要先判斷是否需要勾選
+        * 是否有早班晚班的差別
+        * 是否需要扣除午休時間
+        * 是否需要扣除晚餐時間
+    * 根據勾選的結果會有幾種欄位可能需要輸入(不用填的話會自動消失)
+        * 午餐時間開始以及結束
+        * 晚餐時間開始以及結束 
+        * 晚班開始的時間
+    * 一定需要填的
+        * 公司名字
+        * 早班以及晚班的薪水(若沒有晚班，晚班薪水跟早班薪水填一樣即可)
+* 修改公司資料
+
+    ![日曆](images/edit_comany_info.png)
+* 可在清單直接點選刪除鍵刪除資料
+
+
 
 ### 開始使用
 
 1. **開始頁面**：
-   ![開始頁面](images/add_dele.png)
-   - Select the company from the "Select Company" dropdown menu.
-   - Enter the date and start/end times
-   ![輸入時間](images/submit_date.png)
-   - Click "Submit" to add the item to the calendar.
-   - The calendar on the right will show the newly added item, allowing you to verify the information.
-   ![確認訊息](images/submit_after.png)
-   - You can delete specific items by entering their ID.
-    ![刪除](images/submit_dele_1.png)
 
-2. **日曆操作**：
-    ![日曆](images/calendar_1.png)
-   - In the calendar, entries for each company can be folded or expanded.
-   - View the salary for each item and the daily salary.
-   - Check the working hours for morning and evening shifts.
+![日曆](images/submit_detail.png)
+   - 從"Select company"選擇設定好的公司
+   - 輸入日期以及時間
+   - 點擊submit後送出，並且會將剛剛新增的內容細節顯示在右側的位置
+
+2. **月曆操作**：
+![日曆](images/calendar_detail.png)
+   - 月曆上會立即顯示，剛剛新增的物件。並且月曆上會顯示當天兼職公司的時薪。
+   - 你可以點擊該物件，會顯示該物件ID以及薪水，然後會有刪除鍵可以將物件直接從月曆上移除
+   - 可以選月曆右上方Clear 按鍵清除月曆內的資料
 
 3. **計算週薪和月薪**：
-   ![計算區間](images/calulate_1.png)
-   - To calculate the salary, click "Save" to save the newly added items (data will be exported to static/data.json).
-   - You can also choose to download the data.json file.
-   - After clicking "Save," the system will automatically refresh and calculate the weekly and monthly salary.
+   ![計算區間](images/calculate.png)
+   - 當上方月曆選擇年月之後，就會及時運算該年該月的周薪以及月薪還有當月工時
 
-# THK
+4. 資料管理
+![計算區間](images/data_manage.png)
+    - 可以將目前修改內容儲存起來
+    - 可將儲存的內容匯出，如果之後在不同裝置就可以匯入繼續編輯 

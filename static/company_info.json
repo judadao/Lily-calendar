@@ -1,5 +1,5 @@
 {
-    "原力1234": {
+    "蘋果電腦_1234": {
         "lunch_start": "12:30",
         "lunch_end": "13:30",
         "dinner_start": "18:00",
@@ -11,7 +11,7 @@
         "deduct_lunch_time": true,
         "deduct_dinner_time": false
     },
-    "原力5": {
+    "蘋果電腦_5": {
         "lunch_start": "12:30",
         "lunch_end": "13:30",
         "dinner_start": "18:00",
@@ -23,7 +23,7 @@
         "deduct_lunch_time": true,
         "deduct_dinner_time": false
     },
-    "原力6": {
+    "臉書櫃公司_6": {
         "lunch_start": "12:30",
         "lunch_end": "13:30",
         "dinner_start": "18:00",
@@ -35,7 +35,7 @@
         "deduct_lunch_time": true,
         "deduct_dinner_time": false
     },
-    "維力": {
+    "阿馬宋": {
         "lunch_start": "00:00",
         "lunch_end": "00:50",
         "dinner_start": "18:00",
@@ -47,7 +47,7 @@
         "deduct_lunch_time": false,
         "deduct_dinner_time": false
     },
-    "和謙": {
+    "阿馬宋_v2": {
         "lunch_start": "00:00",
         "lunch_end": "01:00",
         "dinner_start": "18:00",
